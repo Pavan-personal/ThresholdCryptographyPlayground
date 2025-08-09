@@ -11,6 +11,7 @@ import { ArrowBack } from '@mui/icons-material';
 import { Challenge } from '../types/GameTypes';
 import { ThresholdChallenge } from './challenges/ThresholdChallenge';
 import { VRFChallenge } from './challenges/VRFChallenge';
+import { BlocklockChallenge } from './challenges/BlocklockChallenge';
 
 interface ChallengeViewProps {
   challenge: Challenge;
@@ -38,6 +39,16 @@ export function ChallengeView({ challenge, onSubmitAnswer, onReturnToMission }: 
     if (challenge.id === 'vrf-verification' || challenge.id === 'randomness-analysis') {
       return (
         <VRFChallenge
+          challenge={challenge}
+          onSubmit={onSubmitAnswer}
+          onHint={handleHint}
+        />
+      );
+    }
+    
+    if (challenge.id === 'blocklock-timing') {
+      return (
+        <BlocklockChallenge
           challenge={challenge}
           onSubmit={onSubmitAnswer}
           onHint={handleHint}

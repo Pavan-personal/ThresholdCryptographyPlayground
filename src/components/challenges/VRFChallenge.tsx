@@ -13,14 +13,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Slide,
   Zoom,
   Fade,
   LinearProgress,
-  IconButton,
-  Tooltip,
-  Grid,
 } from '@mui/material';
+import { useToast } from '../ToastNotification';
 import {
   Casino,
   Shuffle,
@@ -29,7 +26,6 @@ import {
   Timer,
   Star,
   School,
-  Lightbulb,
   Security,
   Visibility,
   VisibilityOff,
@@ -54,17 +50,11 @@ interface GameCard {
   vrfProof: string;
 }
 
-interface Player {
-  id: string;
-  name: string;
-  cards: GameCard[];
-  score: number;
-  trust: number;
-}
+// Player interface removed as it's not used
 
 export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
+  const toast = useToast();
   const [gamePhase, setGamePhase] = useState<'setup' | 'drawing' | 'verification' | 'results'>('setup');
-  const [players, setPlayers] = useState<Player[]>([]);
   const [deck, setDeck] = useState<GameCard[]>([]);
   const [drawnCards, setDrawnCards] = useState<GameCard[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -73,21 +63,17 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [showProofs, setShowProofs] = useState(false);
   const [selectedProof, setSelectedProof] = useState<string | null>(null);
-  const [spinnerActive, setSpinnerActive] = useState(false);
   const [animatingCard, setAnimatingCard] = useState<string | null>(null);
-
-  // Initialize game
-  useEffect(() => {
-    initializeGame();
-    const timer = setInterval(() => setTimeSpent(prev => prev + 1), 1000);
-    return () => clearInterval(timer);
-  }, []);
+  // Add spinner state alongside cards
+  const [spinnerValues, setSpinnerValues] = useState<number[]>([1, 2, 3, 4, 5]);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [spinnerResult, setSpinnerResult] = useState<number | null>(null);
 
   const initializeGame = useCallback(() => {
     // Create deck
     const suits: Array<'hearts' | 'diamonds' | 'clubs' | 'spades'> = ['hearts', 'diamonds', 'clubs', 'spades'];
     const newDeck: GameCard[] = [];
-    
+
     suits.forEach((suit, suitIndex) => {
       for (let value = 1; value <= 13; value++) {
         newDeck.push({
@@ -102,22 +88,25 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
       }
     });
 
-    // Create players
-    const newPlayers: Player[] = [
-      { id: 'alice', name: 'Alice', cards: [], score: 0, trust: 95 },
-      { id: 'bob', name: 'Bob', cards: [], score: 0, trust: 87 },
-      { id: 'charlie', name: 'Charlie', cards: [], score: 0, trust: 92 },
-      { id: 'you', name: 'You', cards: [], score: 0, trust: 100 }
-    ];
-
     setDeck(shuffleDeck(newDeck));
-    setPlayers(newPlayers);
+    // Also initialize spinner
+    setSpinnerValues([1, 2, 3, 4, 5]);
+    setSpinnerResult(null);
   }, []);
+
+  // Initialize game
+  useEffect(() => {
+    initializeGame();
+    const timer = setInterval(() => setTimeSpent(prev => prev + 1), 1000);
+    return () => clearInterval(timer);
+  }, [initializeGame]);
 
   const generateMockVRFProof = (seed: number): string => {
     // Mock VRF proof - in reality this would be a cryptographic proof
     const hash = `0x${(seed * 0x1f4d5b2c + 0xabc123).toString(16).padStart(64, '0')}`;
-    return hash.substring(0, 16) + '...';
+    const publicKey = `0x${(seed * 0x9876543 + 0xdef456).toString(16).padStart(64, '0')}`;
+    const signature = `0x${(seed * 0xabcdef + 0x123789).toString(16).padStart(128, '0')}`;
+    return `{"hash":"${hash}","publicKey":"${publicKey}","signature":"${signature}","input":"card_draw_${seed}","timestamp":${Date.now()}}`;
   };
 
   const shuffleDeck = (cards: GameCard[]): GameCard[] => {
@@ -131,50 +120,88 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
 
   const drawRandomCard = async () => {
     if (deck.length === 0) return;
-    
+
     setIsDrawing(true);
-    setSpinnerActive(true);
     setGamePhase('drawing');
-    
+
     // Simulate VRF calculation with visual feedback
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     const randomIndex = Math.floor(Math.random() * deck.length);
     const drawnCard = { ...deck[randomIndex], isRevealed: true };
-    
+
     setAnimatingCard(drawnCard.id);
     setDrawnCards(prev => [...prev, drawnCard]);
     setDeck(prev => prev.filter((_, index) => index !== randomIndex));
     setGameScore(prev => prev + 10);
-    
+
     setTimeout(() => {
       setAnimatingCard(null);
       setIsDrawing(false);
-      setSpinnerActive(false);
       setGamePhase('verification');
     }, 1000);
+  };
+
+  const spinForRandomValue = async () => {
+    console.log('Spin button clicked!'); // Debug log
+    setIsSpinning(true);
+    toast.showInfo('Starting VRF spinner...');
+
+    // Animate spinner for 2 seconds
+    const spinDuration = 2000;
+    const spinInterval = 100;
+    const steps = spinDuration / spinInterval;
+
+    let currentStep = 0;
+    let finalSpinnerValues: number[] = [];
+
+    const spinAnimation = setInterval(() => {
+      const newValues = [
+        Math.floor(Math.random() * 100) + 1,
+        Math.floor(Math.random() * 100) + 1,
+        Math.floor(Math.random() * 100) + 1,
+        Math.floor(Math.random() * 100) + 1,
+        Math.floor(Math.random() * 100) + 1,
+      ];
+
+      setSpinnerValues(newValues);
+      finalSpinnerValues = newValues; // Store the final values
+
+      currentStep++;
+      if (currentStep >= steps) {
+        clearInterval(spinAnimation);
+        // Final result is randomly selected from the final spinner values
+        const randomIndex = Math.floor(Math.random() * finalSpinnerValues.length);
+        const final = finalSpinnerValues[randomIndex];
+        setSpinnerResult(final);
+        setIsSpinning(false);
+        setGameScore(prev => prev + 15);
+        toast.showSuccess(`VRF Spinner selected: ${final} from [${finalSpinnerValues.join(', ')}]`);
+      }
+    }, spinInterval);
   };
 
   const verifyVRF = (cardId: string) => {
     const card = drawnCards.find(c => c.id === cardId);
     if (!card) return;
-    
+
     setSelectedProof(card.vrfProof);
     setGameScore(prev => prev + 20);
-    
+
     // Simulate verification process
     setTimeout(() => {
-      alert(`VRF Proof Verified! Card ${card.value} of ${card.suit} was genuinely random.`);
+      toast.showSuccess(`VRF Proof Verified! Card ${card.value} of ${card.suit} was genuinely random.`);
     }, 500);
   };
 
   const submitResults = () => {
     const answer = {
       drawnCards: drawnCards.map(c => ({ id: c.id, proof: c.vrfProof })),
+      spinnerResult,
       verifications: drawnCards.length,
       gameScore
     };
-    
+
     setGamePhase('results');
     onSubmit(answer);
   };
@@ -198,34 +225,47 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: 2 }}>
       {/* Game Header */}
-      <Paper sx={{ p: 3, mb: 3, background: 'linear-gradient(45deg, #FF6B6B 30%, #4ECDC4 90%)' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white' }}>
+      <Paper sx={{
+        p: 3,
+        mb: 3,
+        bgcolor: 'background.paper',
+        borderRadius: 2,
+        border: '1px solid',
+        borderColor: 'divider'
+      }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-              <Casino sx={{ mr: 2, fontSize: 40 }} />
+            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'primary.main' }}>
+              <Casino sx={{ mr: 2, verticalAlign: 'middle' }} />
               VRF Casino Challenge
             </Typography>
-            <Typography variant="h6">
-              Master Verifiable Random Functions through card games!
+            <Typography variant="h6" color="text.secondary">
+              Master Verifiable Random Functions through card games
             </Typography>
           </Box>
           <Box sx={{ textAlign: 'right' }}>
-            <Chip 
-              icon={<Star />} 
-              label={`Score: ${gameScore}`} 
-              sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', mb: 1, mr: 1 }} 
-            />
-            <Chip 
-              icon={<Timer />} 
-              label={`Time: ${formatTime(timeSpent)}`} 
-              sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', mb: 1 }} 
-            />
+            <Box sx={{ mb: 2 }}>
+              <Chip
+                icon={<Star />}
+                label={`Score: ${gameScore}`}
+                variant="outlined"
+                color="primary"
+                sx={{ mr: 1 }}
+              />
+              <Chip
+                icon={<Timer />}
+                label={`Time: ${formatTime(timeSpent)}`}
+                variant="outlined"
+                color="primary"
+              />
+            </Box>
             <Box>
               <Button
                 startIcon={<School />}
                 onClick={() => setTutorialOpen(true)}
                 variant="outlined"
                 sx={{ color: 'white', borderColor: 'white', mr: 1 }}
+                size="small"
               >
                 How VRF Works
               </Button>
@@ -234,6 +274,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
                 onClick={() => setShowProofs(!showProofs)}
                 variant="outlined"
                 sx={{ color: 'white', borderColor: 'white' }}
+                size="small"
               >
                 {showProofs ? 'Hide' : 'Show'} Proofs
               </Button>
@@ -246,18 +287,18 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
       <Paper sx={{ p: 3, mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6">Game Progress</Typography>
-          <Chip 
-            label={`Phase: ${gamePhase.toUpperCase()}`} 
+          <Chip
+            label={`Phase: ${gamePhase.toUpperCase()}`}
             color={gamePhase === 'results' ? 'success' : 'primary'}
           />
         </Box>
-        <LinearProgress 
-          variant="determinate" 
+        <LinearProgress
+          variant="determinate"
           value={
             gamePhase === 'setup' ? 25 :
-            gamePhase === 'drawing' ? 50 :
-            gamePhase === 'verification' ? 75 : 100
-          } 
+              gamePhase === 'drawing' ? 50 :
+                gamePhase === 'verification' ? 75 : 100
+          }
           sx={{ height: 8, borderRadius: 4 }}
         />
       </Paper>
@@ -271,8 +312,8 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
               Mission: Prove Fair Randomness
             </Typography>
             <Typography variant="body1">
-              You're at a high-stakes casino where trust is everything. Players suspect the card dealing 
-              is rigged. Using <strong>Verifiable Random Functions (VRF)</strong>, you must prove that 
+              You're at a high-stakes casino where trust is everything. Players suspect the card dealing
+              is rigged. Using <strong>Verifiable Random Functions (VRF)</strong>, you must prove that
               every card draw is genuinely random and verifiable by all players.
             </Typography>
           </Alert>
@@ -280,9 +321,9 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
           <Typography variant="h5" gutterBottom sx={{ color: 'primary.main' }}>
             Understanding VRF
           </Typography>
-          
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} md={4}>
+
+          <Box sx={{ display: 'flex', gap: 3, mb: 4, flexWrap: 'wrap' }}>
+            <Box sx={{ flex: 1, minWidth: 200 }}>
               <Card sx={{ height: '100%', p: 2 }}>
                 <CardContent>
                   <Security sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
@@ -292,8 +333,8 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-            <Grid item xs={12} md={4}>
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 200 }}>
               <Card sx={{ height: '100%', p: 2 }}>
                 <CardContent>
                   <CheckCircle sx={{ fontSize: 40, color: 'success.main', mb: 2 }} />
@@ -303,8 +344,8 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-            <Grid item xs={12} md={4}>
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 200 }}>
               <Card sx={{ height: '100%', p: 2 }}>
                 <CardContent>
                   <TrendingUp sx={{ fontSize: 40, color: 'warning.main', mb: 2 }} />
@@ -314,35 +355,181 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
 
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="body1" paragraph>
-              Cards remaining in deck: <strong>{deck.length}</strong>
+              Choose your VRF method: Cards or Spinner
             </Typography>
-            <Button
-              variant="contained"
-              onClick={() => setGamePhase('drawing')}
-              startIcon={<PlayArrow />}
-              size="large"
-              sx={{ px: 4, py: 1.5 }}
-            >
-              Start Card Drawing
-            </Button>
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Button
+                variant="contained"
+                onClick={() => setGamePhase('drawing')}
+                startIcon={<PlayArrow />}
+                size="large"
+                sx={{ px: 4, py: 1.5 }}
+              >
+                Start Card Drawing
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={spinForRandomValue}
+                startIcon={<Shuffle />}
+                size="large"
+                sx={{ px: 4, py: 1.5 }}
+                disabled={isSpinning}
+              >
+                {isSpinning ? 'Spinning...' : 'Spin for Numbers'}
+              </Button>
+            </Box>
           </Box>
         </Paper>
       </Fade>
 
+      {/* Number Spinner Display - Show independently */}
+      {(isSpinning || spinnerResult) && (
+        <Fade in={true}>
+          <Paper sx={{
+            p: 5,
+            mb: 4,
+            textAlign: 'center',
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider'
+          }}>
+            {/* Header */}
+            <Box sx={{ mb: 4 }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  color: 'success.main',
+                  fontWeight: 'bold',
+                  mb: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 2
+                }}
+              >
+                <Casino sx={{ fontSize: '2rem' }} />
+                VRF Number Spinner
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Generating Cryptographically Secure Random Numbers
+              </Typography>
+            </Box>
+
+            {/* Spinner Numbers */}
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 3,
+                mb: 4,
+                flexWrap: 'wrap'
+              }}>
+                {spinnerValues.map((value, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: isSpinning ? 'warning.main' : 'success.main',
+                      color: 'white',
+                      borderRadius: 3,
+                      fontSize: '1.8rem',
+                      fontWeight: 'bold',
+                      boxShadow: isSpinning ? 6 : 4,
+                      transform: isSpinning ? 'scale(1.1)' : 'scale(1)',
+                      transition: 'all 0.2s ease',
+                      animation: isSpinning ? 'pulse 0.5s infinite' : 'none',
+                      border: '2px solid rgba(255, 255, 255, 0.2)'
+                    }}
+                  >
+                    {value}
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Final Result */}
+              {spinnerResult && (
+                <Box sx={{
+                  bgcolor: 'success.light',
+                  borderRadius: 2,
+                  p: 3,
+                  mb: 3,
+                  border: '1px solid',
+                  borderColor: 'success.main'
+                }}>
+                  <Typography variant="h4" color="success.main" sx={{ fontWeight: 'bold', mb: 1 }}>
+                    Final VRF Result: {spinnerResult}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    Selected from the spinner values using cryptographically secure VRF
+                  </Typography>
+                </Box>
+              )}
+
+              {/* Action Buttons */}
+              {spinnerResult && (
+                <Box sx={{
+                  display: 'flex',
+                  gap: 3,
+                  justifyContent: 'center',
+                  flexWrap: 'wrap'
+                }}>
+                  <Button
+                    variant="outlined"
+                    onClick={spinForRandomValue}
+                    startIcon={<Shuffle />}
+                    disabled={isSpinning}
+                    size="large"
+                    sx={{ px: 4, py: 1.5 }}
+                  >
+                    Spin Again
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={submitResults}
+                    startIcon={<CheckCircle />}
+                    color="success"
+                    size="large"
+                    sx={{ px: 4, py: 1.5 }}
+                  >
+                    Submit VRF Results
+                  </Button>
+                </Box>
+              )}
+            </Box>
+          </Paper>
+        </Fade>
+      )}
+
       {/* Drawing Phase */}
       <Fade in={gamePhase === 'drawing' || gamePhase === 'verification'}>
-        <Paper sx={{ 
-          p: 4, 
-          mb: 3, 
-          display: (gamePhase === 'drawing' || gamePhase === 'verification') ? 'block' : 'none' 
+        <Paper sx={{
+          p: 4,
+          mb: 3,
+          display: (gamePhase === 'drawing' || gamePhase === 'verification') ? 'block' : 'none'
         }}>
-          <Typography variant="h5" gutterBottom sx={{ color: 'primary.main' }}>
-            <Casino sx={{ mr: 2 }} />
+
+          <Typography
+            variant="h4"
+            sx={{
+              color: 'primary.main',
+              fontWeight: 'bold',
+              mb: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2
+            }}
+          >
+            <Casino sx={{ fontSize: '2rem' }} />
             Random Card Drawing
           </Typography>
 
@@ -350,13 +537,13 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
           {isDrawing && (
             <Box sx={{ textAlign: 'center', my: 4 }}>
               <Box sx={{ position: 'relative', display: 'inline-flex', mb: 2 }}>
-                <CircularProgress 
-                  size={80} 
+                <CircularProgress
+                  size={80}
                   thickness={4}
-                  sx={{ 
+                  sx={{
                     color: 'primary.main',
-                    animationDuration: '0.8s' 
-                  }} 
+                    animationDuration: '0.8s'
+                  }}
                 />
                 <Box sx={{
                   top: 0,
@@ -383,69 +570,174 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
           {/* Drawn Cards Display */}
           {drawnCards.length > 0 && (
             <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom sx={{ textAlign: 'center' }}>
                 Drawn Cards (Click to verify VRF proof):
               </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              <Box sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 3,
+                justifyContent: 'center',
+                mb: 3
+              }}>
                 {drawnCards.map((card, index) => (
-                  <Zoom 
-                    key={card.id} 
-                    in={true} 
+                  <Zoom
+                    key={card.id}
+                    in={true}
                     style={{ transitionDelay: `${index * 200}ms` }}
                   >
-                    <Card
+                    <Box
                       sx={{
-                        width: 120,
-                        height: 160,
+                        width: 140,
+                        height: 200,
                         cursor: 'pointer',
-                        border: card.id === animatingCard ? '3px solid gold' : '2px solid #ddd',
-                        bgcolor: card.color === 'red' ? '#ffebee' : '#f3e5f5',
+                        borderRadius: 3,
+                        bgcolor: 'background.paper',
+                        border: card.id === animatingCard ? '3px solid' : '2px solid',
+                        borderColor: card.id === animatingCard ? 'success.main' : 'divider',
+                        boxShadow: card.id === animatingCard ? 4 : 2,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        position: 'relative',
+                        overflow: 'hidden',
                         '&:hover': {
-                          transform: 'translateY(-8px) scale(1.05)',
-                          boxShadow: 6
+                          transform: 'translateY(-8px)',
+                          boxShadow: 6,
+                          borderColor: 'primary.main'
                         }
                       }}
                       onClick={() => verifyVRF(card.id)}
                     >
-                      <CardContent sx={{ textAlign: 'center', p: 2 }}>
-                        <Typography 
-                          variant="h4" 
-                          sx={{ 
-                            color: card.color === 'red' ? '#d32f2f' : '#1976d2',
+                      {/* Top Corner */}
+                      <Box sx={{
+                        position: 'absolute',
+                        top: 8,
+                        left: 8,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
+                      }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            color: card.color === 'red' ? 'error.main' : 'primary.main',
+                            fontWeight: 'bold',
+                            fontSize: '1.2rem',
+                            lineHeight: 1
+                          }}
+                        >
+                          {card.value === 1 ? 'A' :
+                            card.value === 11 ? 'J' :
+                              card.value === 12 ? 'Q' :
+                                card.value === 13 ? 'K' : card.value}
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            color: card.color === 'red' ? 'error.main' : 'primary.main',
+                            fontSize: '1rem',
+                            lineHeight: 1
+                          }}
+                        >
+                          {getSuitIcon(card.suit)}
+                        </Typography>
+                      </Box>
+
+                      {/* Center Symbol */}
+                      <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '100%',
+                        flexDirection: 'column'
+                      }}>
+                        <Typography
+                          variant="h1"
+                          sx={{
+                            color: card.color === 'red' ? 'error.main' : 'primary.main',
+                            fontSize: '3.5rem',
                             fontWeight: 'bold',
                             mb: 1
                           }}
                         >
-                          {card.value}
-                        </Typography>
-                        <Typography variant="h5" sx={{ mb: 1 }}>
                           {getSuitIcon(card.suit)}
                         </Typography>
-                        <Typography variant="caption" display="block">
-                          {card.suit.charAt(0).toUpperCase() + card.suit.slice(1)}
+                        <Typography
+                          variant="h4"
+                          sx={{
+                            color: card.color === 'red' ? 'error.main' : 'primary.main',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {card.value === 1 ? 'A' :
+                            card.value === 11 ? 'J' :
+                              card.value === 12 ? 'Q' :
+                                card.value === 13 ? 'K' : card.value}
                         </Typography>
-                        {showProofs && (
-                          <Typography 
-                            variant="caption" 
-                            display="block" 
-                            sx={{ 
-                              fontFamily: 'monospace',
-                              fontSize: '0.7rem',
-                              mt: 1,
-                              wordBreak: 'break-all'
-                            }}
-                          >
-                            {card.vrfProof}
-                          </Typography>
-                        )}
-                      </CardContent>
-                    </Card>
+                      </Box>
+
+                      {/* Bottom Corner (upside down) */}
+                      <Box sx={{
+                        position: 'absolute',
+                        bottom: 8,
+                        right: 8,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        transform: 'rotate(180deg)'
+                      }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            color: card.color === 'red' ? 'error.main' : 'primary.main',
+                            fontWeight: 'bold',
+                            fontSize: '1.2rem',
+                            lineHeight: 1
+                          }}
+                        >
+                          {card.value === 1 ? 'A' :
+                            card.value === 11 ? 'J' :
+                              card.value === 12 ? 'Q' :
+                                card.value === 13 ? 'K' : card.value}
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            color: card.color === 'red' ? 'error.main' : 'primary.main',
+                            fontSize: '1rem',
+                            lineHeight: 1
+                          }}
+                        >
+                          {getSuitIcon(card.suit)}
+                        </Typography>
+                      </Box>
+
+                      {/* VRF Proof indicator */}
+                      <Box sx={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        width: 24,
+                        height: 24,
+                        bgcolor: 'success.main',
+                        borderRadius: '0 8px 0 8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <Typography variant="caption" sx={{ color: 'white', fontSize: '0.7rem' }}>
+                          VRF
+                        </Typography>
+                      </Box>
+                    </Box>
                   </Zoom>
                 ))}
               </Box>
             </Box>
           )}
+
+
 
           {/* Game Controls */}
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
@@ -458,7 +750,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
             >
               {isDrawing ? 'Drawing...' : 'Draw Random Card'}
             </Button>
-            
+
             {drawnCards.length > 0 && (
               <Button
                 variant="outlined"
@@ -486,15 +778,16 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
             <CheckCircle sx={{ mr: 2, fontSize: 48 }} />
             VRF Challenge Complete!
           </Typography>
-          
+
           <Alert severity="success" sx={{ mb: 3, maxWidth: 600, mx: 'auto' }}>
             <Typography variant="h6" gutterBottom>
               Congratulations! You've successfully demonstrated VRF properties:
             </Typography>
             <Box component="ul" sx={{ textAlign: 'left', pl: 2 }}>
               <li>Generated {drawnCards.length} provably random cards</li>
-              <li>Each draw was unpredictable before generation</li>
-              <li>All draws are verifiable by cryptographic proofs</li>
+              {spinnerResult && <li>Generated spinner result: {spinnerResult}</li>}
+              <li>Each generation was unpredictable before execution</li>
+              <li>All results are verifiable by cryptographic proofs</li>
               <li>Total score: {gameScore} points in {formatTime(timeSpent)}</li>
             </Box>
           </Alert>
@@ -520,10 +813,10 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
         <DialogContent>
           <Typography variant="h6" gutterBottom>The Problem:</Typography>
           <Typography variant="body1" paragraph>
-            Traditional random number generators require trust. In a casino, players must trust 
+            Traditional random number generators require trust. In a casino, players must trust
             that the house isn't cheating. In blockchain, nodes must trust the randomness source.
           </Typography>
-          
+
           <Typography variant="h6" gutterBottom>The VRF Solution:</Typography>
           <Typography variant="body1" paragraph>
             VRF combines a secret key with public input to generate:
@@ -533,10 +826,10 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
             <li><strong>Cryptographic Proof:</strong> Proves the output was generated correctly</li>
             <li><strong>Verification:</strong> Anyone can verify the proof using public information</li>
           </Box>
-          
+
           <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Real-World Usage:</Typography>
           <Typography variant="body1">
-            Chainlink VRF, Algorand's consensus, Cardano's slot leader selection, 
+            Chainlink VRF, Algorand's consensus, Cardano's slot leader selection,
             and many DeFi protocols use VRF for tamper-proof randomness.
           </Typography>
         </DialogContent>
@@ -547,23 +840,55 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
 
       {/* VRF Proof Display */}
       {selectedProof && (
-        <Dialog open={!!selectedProof} onClose={() => setSelectedProof(null)}>
-          <DialogTitle>VRF Proof Verification</DialogTitle>
+        <Dialog open={!!selectedProof} onClose={() => setSelectedProof(null)} maxWidth="md" fullWidth>
+          <DialogTitle style={{
+            display: 'flex',
+            alignItems: 'center',
+            // justifyContent: 'center',
+          }}>
+            <Security sx={{ mr: 2 }} />
+            VRF Proof Verification
+          </DialogTitle>
           <DialogContent>
             <Typography variant="body1" paragraph>
-              Cryptographic proof for this random draw:
+              Complete cryptographic proof for this random draw:
             </Typography>
-            <Paper sx={{ p: 2, bgcolor: 'grey.100', fontFamily: 'monospace' }}>
+            <Paper sx={{
+              p: 3,
+              bgcolor: 'grey.50',
+              fontFamily: 'monospace',
+              fontSize: '0.9rem',
+              wordBreak: 'break-all',
+              maxHeight: 300,
+              overflow: 'auto',
+              border: '1px solid',
+              borderColor: 'grey.300',
+color: 'black'
+            }}>
               {selectedProof}
             </Paper>
             <Typography variant="body2" sx={{ mt: 2 }} color="text.secondary">
-              In a real implementation, this proof would be verified against the VRF public key 
-              and input parameters to ensure the randomness is genuine.
+              In a real implementation, this proof would be verified against the VRF public key
+              and input parameters to ensure the randomness is genuine and cannot be manipulated.
             </Typography>
+            <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', color: 'black', borderRadius: 1 }}>
+              <Typography variant="caption" display="block">
+                <strong>Proof Components:</strong>
+              </Typography>
+              <Typography variant="caption" display="block">
+                • Hash: Deterministic output derived from input<br />
+                • Public Key: Verifier's cryptographic key<br />
+                • Signature: Proof of correct VRF computation<br />
+                • Input: Original seed value for randomness<br />
+                • Timestamp: When the proof was generated
+              </Typography>
+            </Box>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setSelectedProof(null)}>Close</Button>
-          </DialogActions>
+          {/* <DialogActions>
+            <Button onClick={() => setSelectedProof(null)} variant="contained">
+              Close
+            </Button>
+          </DialogActions> */}
         </Dialog>
       )}
     </Box>

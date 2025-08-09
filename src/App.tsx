@@ -2,6 +2,7 @@ import React from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { useGameEngine } from './hooks/useGameEngine';
+import { ToastProvider } from './components/ToastNotification';
 import { GameHub } from './components/GameHub';
 import { MissionView } from './components/MissionView';
 import { ChallengeView } from './components/ChallengeView';
@@ -45,9 +46,11 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div className="App">
-        {renderCurrentScene()}
-      </div>
+      <ToastProvider>
+        <div className="App">
+          {renderCurrentScene()}
+        </div>
+      </ToastProvider>
     </ThemeProvider>
   );
 }

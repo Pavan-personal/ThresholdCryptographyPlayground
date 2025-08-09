@@ -4,8 +4,8 @@ export function generateMissions(): Mission[] {
   return [
     {
       id: 'threshold-heist',
-      title: '🏦 The Great Bank Key Heist',
-      description: 'Professor Crypto has lost his memory! Help him remember how to combine threshold signatures to unlock the bank vault... before his coffee gets cold! ☕',
+      title: 'The Great Bank Key Heist',
+      description: 'Master threshold cryptography by coordinating multiple executives to unlock a secure bank vault using distributed key sharing.',
       difficulty: 'beginner',
       cryptoTech: 'threshold',
       requiredSkill: 0,
@@ -18,22 +18,22 @@ export function generateMissions(): Mission[] {
       npcDialogue: [
         {
           id: 'prof-intro',
-          speaker: 'Professor Crypto 👨‍🏫',
-          text: "Oh no! I drank too much coffee and forgot how threshold signatures work! The bank vault needs 3 out of 5 executives to sign, but I can't remember the math! Help me before my reputation is ruined! 😅",
+          speaker: 'Professor Crypto',
+          text: "The bank vault security system requires exactly 3 out of 5 executive signatures to authorize emergency transfers. You must coordinate the executives and calculate the correct threshold signature using Lagrange interpolation.",
           emotion: 'worried',
           choices: [
-            { text: "Don't worry Prof, I'll help you!", response: "Thank you! You're my only hope!" },
-            { text: "Maybe try less coffee next time? 😏", response: "Very funny! Now help me fix this mess!" }
+            { text: "I understand. Let me help coordinate the executives.", response: "Excellent! The bank's security depends on your calculations." },
+            { text: "Can you explain threshold cryptography first?", response: "Of course! Threshold schemes distribute trust among multiple parties." }
           ]
         },
         {
           id: 'exec-drama',
-          speaker: 'Bank Executive Alice 💼',
-          text: "Listen here rookie, this isn't child's play! One wrong calculation and the entire bank's security is compromised. Are you sure you can handle polynomial interpolation?",
-          emotion: 'angry',
+          speaker: 'Bank Executive Alice',
+          text: "This is a critical security operation. One wrong calculation and the entire bank's cryptographic infrastructure could be compromised. Are you confident in your polynomial interpolation skills?",
+          emotion: 'worried',
           choices: [
-            { text: "I've got this! Just watch me.", response: "Hmph! We'll see about that..." },
-            { text: "Um... what's a polynomial? 😅", response: "Oh great, another amateur. Professor, what have you done?!" }
+            { text: "I've studied the mathematics thoroughly.", response: "Good. Mathematical precision is essential here." },
+            { text: "I need to review the interpolation formula.", response: "Take your time. Accuracy is more important than speed." }
           ]
         }
       ],
@@ -277,6 +277,55 @@ export function generateMissions(): Mission[] {
             "Adapt quickly to changing conditions",
             "Use alternative paths when primary routes fail",
             "Monitor network health continuously"
+          ],
+          isCompleted: false
+        }
+      ]
+    },
+    {
+      id: 'blocklock-vault',
+      title: 'Time-Locked Digital Vault',
+      description: 'Master blocklock encryption by calculating precise timing mechanisms that unlock secrets based on blockchain progression.',
+      difficulty: 'intermediate',
+      cryptoTech: 'blocklock',
+      requiredSkill: 0,
+      isUnlocked: true,
+      isCompleted: false,
+      rewards: {
+        experience: 150,
+        items: ['time-master-badge', 'entropy-dice']
+      },
+      npcDialogue: [
+        {
+          id: 'time-keeper',
+          speaker: 'Dr. Chronos',
+          text: "Welcome to the temporal cryptography lab. We need to set up a time-locked vault that will automatically reveal its contents after exactly 24 hours. The challenge is calculating the precise blockchain timing.",
+          emotion: 'happy',
+          choices: [
+            { text: "I'm ready to master time-lock cryptography.", response: "Excellent! Timing is everything in blocklock systems." },
+            { text: "How does blockchain timing work?", response: "Blocklock uses blockchain progression as an unstoppable clock." }
+          ]
+        }
+      ],
+      challenges: [
+        {
+          id: 'blocklock-timing',
+          type: 'math',
+          title: 'Entropy Dice Time Calculator',
+          description: 'Calculate the exact blockchain block number when a time-locked secret will be revealed using entropy generation.',
+          instruction: 'Roll entropy dice to generate randomness, then calculate the target block for time-lock release.',
+          solution: { 
+            calculatedBlock: 1000288,
+            diceSum: 12,
+            entropy: '4-4-4'
+          },
+          attempts: 0,
+          maxAttempts: 3,
+          timeLimit: 300,
+          hints: [
+            "Use the formula: Current Block + (Hours × 6) + (Dice Sum × 10)",
+            "Bitcoin averages 6 blocks per hour",
+            "Entropy adds unpredictability to prevent timing attacks"
           ],
           isCompleted: false
         }

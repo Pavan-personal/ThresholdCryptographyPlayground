@@ -10,7 +10,6 @@ import {
   Step,
   StepLabel,
   StepContent,
-  Alert,
   CircularProgress,
   Paper,
   Tooltip,
@@ -24,6 +23,7 @@ import {
   DialogContent,
   DialogActions,
   Zoom,
+  Container,
 } from '@mui/material';
 import { 
   Security, 
@@ -43,6 +43,7 @@ import {
   VisibilityOff,
 } from '@mui/icons-material';
 import { Challenge } from '../../types/GameTypes';
+import { useToast } from '../ToastNotification';
 
 interface ThresholdChallengeProps {
   challenge: Challenge;
@@ -61,6 +62,7 @@ interface Executive {
 }
 
 export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengeProps) {
+  const { showSuccess, showError, showInfo } = useToast();
   const [activeStep, setActiveStep] = useState(0);
   const [executives, setExecutives] = useState<Executive[]>([
     { id: 'alice', name: 'Alice', share: 15, x: 1, selected: false, avatar: 'A', role: 'CEO' },
@@ -73,7 +75,6 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
   const [coefficients, setCoefficients] = useState<{ [key: string]: string }>({});
   const [finalSignature, setFinalSignature] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitResult, setSubmitResult] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [animatingCard, setAnimatingCard] = useState<string | null>(null);
@@ -123,7 +124,6 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
 
   const submitAnswer = async () => {
     setIsSubmitting(true);
-    setSubmitResult(null);
     
     const answer = {
       selectedExecutives: selectedExecutives.map(e => e.id),
@@ -134,10 +134,10 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
     try {
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
       onSubmit(answer);
-      setSubmitResult('success');
       setGameScore(prev => prev + 50);
+      showSuccess(`Excellent! Your solution is correct. Score: ${gameScore + 50} points in ${formatTime(timeSpent)}!`);
     } catch (error) {
-      setSubmitResult('error');
+      showError('Incorrect answer. Please check your calculations and try again.');
     }
     
     setIsSubmitting(false);
@@ -166,36 +166,49 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: 2 }}>
+    <Container maxWidth="lg" sx={{ py: 3 }}>
       {/* Game Header with Stats */}
-      <Paper sx={{ p: 3, mb: 3, background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white' }}>
+      <Paper sx={{ 
+        p: 3, 
+        mb: 3, 
+        bgcolor: 'background.paper',
+        borderRadius: 2,
+        border: '1px solid',
+        borderColor: 'divider'
+      }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-              <Security sx={{ mr: 2, fontSize: 40 }} />
+            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'primary.main' }}>
+              <Security sx={{ mr: 2, verticalAlign: 'middle' }} />
               Threshold Cryptography Challenge
             </Typography>
-            <Typography variant="h6">
-              Master the art of distributed cryptographic signatures!
+            <Typography variant="h6" color="text.secondary">
+              Master the art of distributed cryptographic signatures
             </Typography>
           </Box>
           <Box sx={{ textAlign: 'right' }}>
-            <Chip 
-              icon={<Star />} 
-              label={`Score: ${gameScore}`} 
-              sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', mb: 1, mr: 1 }} 
-            />
-            <Chip 
-              icon={<Timer />} 
-              label={`Time: ${formatTime(timeSpent)}`} 
-              sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', mb: 1 }} 
-            />
+            <Box sx={{ mb: 2 }}>
+              <Chip 
+                icon={<Star />} 
+                label={`Score: ${gameScore}`} 
+                variant="outlined"
+                color="primary"
+                sx={{ mr: 1 }} 
+              />
+              <Chip 
+                icon={<Timer />} 
+                label={`Time: ${formatTime(timeSpent)}`} 
+                variant="outlined"
+                color="primary"
+              />
+            </Box>
             <Box>
               <Button
                 startIcon={<School />}
                 onClick={() => setTutorialOpen(true)}
                 variant="outlined"
                 sx={{ color: 'white', borderColor: 'white', mr: 1 }}
+                size="small"
               >
                 Tutorial
               </Button>
@@ -204,6 +217,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                 onClick={() => setShowHint(!showHint)}
                 variant="outlined"
                 sx={{ color: 'white', borderColor: 'white' }}
+                size="small"
               >
                 Hint
               </Button>
@@ -233,18 +247,20 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
       {/* Mission Briefing */}
       <Fade in={activeStep === 0}>
         <Paper sx={{ p: 4, mb: 3, display: activeStep === 0 ? 'block' : 'none' }}>
-          <Alert severity="warning" sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              <Casino sx={{ mr: 1 }} />
-              Mission Briefing: The Bank Vault Heist
-            </Typography>
-            <Typography variant="body1">
-              A sophisticated bank vault requires exactly <strong>3 out of 5</strong> executive signatures 
-              to authorize a critical $1M emergency transfer. The executives are scattered across different 
-              locations, and you need to coordinate them to create a valid threshold signature using 
-              <strong> Lagrange interpolation</strong>.
-            </Typography>
-          </Alert>
+          <Card sx={{ mb: 3, bgcolor: 'warning.light', color: 'warning.contrastText' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                <Casino sx={{ mr: 1, verticalAlign: 'middle' }} />
+                Mission Briefing: The Bank Vault Heist
+              </Typography>
+              <Typography variant="body1">
+                A sophisticated bank vault requires exactly <strong>3 out of 5</strong> executive signatures 
+                to authorize a critical $1M emergency transfer. The executives are scattered across different 
+                locations, and you need to coordinate them to create a valid threshold signature using 
+                <strong> Lagrange interpolation</strong>.
+              </Typography>
+            </CardContent>
+          </Card>
 
           <Typography variant="h5" gutterBottom sx={{ color: 'primary.main' }}>
             Select Your Team of 3 Executives
@@ -252,9 +268,10 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
           
           <Box sx={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
             gap: 3, 
-            mb: 3 
+            mb: 4,
+            justifyItems: 'center'
           }}>
             {executives.map((exec) => (
               <Zoom 
@@ -265,13 +282,15 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                 <Card 
                   sx={{ 
                     cursor: 'pointer',
-                    border: exec.selected ? '3px solid #1976d2' : '2px solid #e0e0e0',
-                    bgcolor: exec.selected ? 'action.selected' : 'background.paper',
+                    height: 180,
+                    border: exec.selected ? '3px solid' : '2px solid',
+                    borderColor: exec.selected ? 'primary.main' : 'divider',
+                    bgcolor: exec.selected ? 'primary.light' : 'background.paper',
                     transform: animatingCard === exec.id ? 'scale(0.95)' : 'scale(1)',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': { 
                       boxShadow: 6,
-                      transform: 'translateY(-8px) scale(1.02)' 
+                      transform: 'translateY(-8px)' 
                     },
                   }}
                   onClick={() => toggleExecutive(exec.id)}
@@ -359,31 +378,33 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
             Calculate Lagrange Coefficients
           </Typography>
           
-          <Alert severity="info" sx={{ mb: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Interactive Formula Calculator
-            </Typography>
-            <Box sx={{ 
-              fontFamily: 'monospace', 
-              fontSize: '1.4rem', 
-              textAlign: 'center',
-              bgcolor: 'primary.main',
-              color: 'white',
-              p: 3,
-              borderRadius: 2,
-              mb: 2
-            }}>
-              L<sub>i</sub>(0) = ∏<sub>j≠i</sub> (0 - x<sub>j</sub>) / (x<sub>i</sub> - x<sub>j</sub>)
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <IconButton onClick={() => setShowCalculation(!showCalculation)}>
-                {showCalculation ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-              <Typography variant="body2">
-                {showCalculation ? 'Hide' : 'Show'} step-by-step calculation
+          <Card sx={{ mb: 4, bgcolor: 'info.light' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Interactive Formula Calculator
               </Typography>
-            </Box>
-          </Alert>
+              <Box sx={{ 
+                fontFamily: 'monospace', 
+                fontSize: '1.4rem', 
+                textAlign: 'center',
+                bgcolor: 'primary.main',
+                color: 'white',
+                p: 3,
+                borderRadius: 2,
+                mb: 2
+              }}>
+                L<sub>i</sub>(0) = ∏<sub>j≠i</sub> (0 - x<sub>j</sub>) / (x<sub>i</sub> - x<sub>j</sub>)
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <IconButton onClick={() => setShowCalculation(!showCalculation)}>
+                  {showCalculation ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+                <Typography variant="body2">
+                  {showCalculation ? 'Hide' : 'Show'} step-by-step calculation
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
 
           {showCalculation && (
             <Slide direction="down" in={showCalculation}>
@@ -524,22 +545,24 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
             Combine the Shares
           </Typography>
           
-          <Alert severity="success" sx={{ mb: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Final Formula:
-            </Typography>
-            <Box sx={{ 
-              fontFamily: 'monospace', 
-              fontSize: '1.4rem', 
-              textAlign: 'center',
-              bgcolor: 'success.main',
-              color: 'white',
-              p: 3,
-              borderRadius: 2
-            }}>
-              Signature = Σ(share<sub>i</sub> × L<sub>i</sub>(0))
-            </Box>
-          </Alert>
+          <Card sx={{ mb: 4, bgcolor: 'success.light' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Final Formula:
+              </Typography>
+              <Box sx={{ 
+                fontFamily: 'monospace', 
+                fontSize: '1.4rem', 
+                textAlign: 'center',
+                bgcolor: 'success.main',
+                color: 'white',
+                p: 3,
+                borderRadius: 2
+              }}>
+                Signature = Σ(share<sub>i</sub> × L<sub>i</sub>(0))
+              </Box>
+            </CardContent>
+          </Card>
 
           <Card sx={{ p: 4, mb: 4, bgcolor: 'primary.light' }}>
             <Typography variant="h6" gutterBottom color="white">
@@ -648,20 +671,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
             )}
           </Box>
           
-          {submitResult && (
-            <Zoom in={!!submitResult}>
-              <Alert 
-                severity={submitResult === 'success' ? 'success' : 'error'} 
-                sx={{ maxWidth: 600, mx: 'auto', mt: 3 }}
-              >
-                <Typography variant="h6">
-                  {submitResult === 'success' 
-                    ? `🎉 Mission Accomplished! Score: ${gameScore} points in ${formatTime(timeSpent)}` 
-                    : 'Incorrect signature. Check your calculations and try again.'}
-                </Typography>
-              </Alert>
-            </Zoom>
-          )}
+          {/* Submit result is now handled by toast notifications */}
 
           <Button onClick={prevStep} startIcon={<Calculate />} sx={{ mt: 2 }}>
             Back to Review
@@ -692,6 +702,6 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
           <Button onClick={() => setTutorialOpen(false)}>Got it!</Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Container>
   );
 }
