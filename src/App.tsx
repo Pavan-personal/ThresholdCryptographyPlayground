@@ -1,25 +1,54 @@
 import React from 'react';
-import logo from './logo.svg';
+import { ThemeProvider } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+import { useGameEngine } from './hooks/useGameEngine';
+import { GameHub } from './components/GameHub';
+import { MissionView } from './components/MissionView';
+import { ChallengeView } from './components/ChallengeView';
+import { IntroScreen } from './components/IntroScreen';
+import { BlogSection } from './components/BlogSection';
+import { theme } from './theme';
 import './App.css';
 
 function App() {
+  const { gameState, actions } = useGameEngine();
+
+  const renderCurrentScene = () => {
+    switch (gameState.currentScene) {
+      case 'intro':
+        return <IntroScreen onStartGame={actions.startGame} />;
+      case 'hub':
+        return <GameHub gameState={gameState} onStartMission={actions.startMission} onGoToBlog={actions.goToBlog} />;
+      case 'mission':
+        return (
+          <MissionView 
+            mission={gameState.activeMission!} 
+            onStartChallenge={actions.startChallenge}
+            onReturnToHub={actions.returnToHub}
+          />
+        );
+      case 'challenge':
+        return (
+          <ChallengeView
+            challenge={gameState.activeChallenge!}
+            onSubmitAnswer={actions.submitChallengeAnswer}
+            onReturnToMission={() => actions.startMission(gameState.activeMission!.id)}
+          />
+        );
+      case 'blog':
+        return <BlogSection onReturnToHub={actions.returnToHub} />;
+      default:
+        return <GameHub gameState={gameState} onStartMission={actions.startMission} onGoToBlog={actions.goToBlog} />;
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div className="App">
+        {renderCurrentScene()}
+      </div>
+    </ThemeProvider>
   );
 }
 
