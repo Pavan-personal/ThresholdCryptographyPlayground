@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -9,7 +9,7 @@ import {
   Stepper,
   Step,
   StepLabel,
-  StepContent,
+  // StepContent,
   CircularProgress,
   Paper,
   Tooltip,
@@ -29,13 +29,9 @@ import {
   Security,
   Calculate,
   CheckCircle,
-  Error,
-  Help,
   PlayArrow,
-  Shuffle,
   Lightbulb,
   AutoFixHigh,
-  Timer,
   Star,
   School,
   Casino,
@@ -62,7 +58,7 @@ interface Executive {
 }
 
 export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengeProps) {
-  const { showSuccess, showError, showInfo } = useToast();
+  const { showSuccess, showError } = useToast();
   const [activeStep, setActiveStep] = useState(0);
   const [executives, setExecutives] = useState<Executive[]>([
     { id: 'alice', name: 'Alice', share: 15, x: 1, selected: false, avatar: 'A', role: 'CEO' },
@@ -78,20 +74,10 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
   const [showHint, setShowHint] = useState(false);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [animatingCard, setAnimatingCard] = useState<string | null>(null);
-  const [gameScore, setGameScore] = useState(0);
-  const [timeSpent, setTimeSpent] = useState(0);
   const [showCalculation, setShowCalculation] = useState(false);
 
   const selectedExecutives = executives.filter(e => e.selected);
   const threshold = 3;
-
-  // Timer effect
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeSpent(prev => prev + 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const toggleExecutive = useCallback((id: string) => {
     setAnimatingCard(id);
@@ -105,12 +91,8 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
         }
         return { ...exec, selected: newSelected };
       }
-      return exec;
+            return exec;
     }));
-
-    if (selectedExecutives.length === 2) {
-      setGameScore(prev => prev + 10);
-    }
   }, [selectedExecutives.length, threshold]);
 
   const calculateHint = useCallback((exec: Executive) => {
@@ -131,13 +113,33 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
       signature: parseFloat(finalSignature)
     };
 
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
-      onSubmit(answer);
-      setGameScore(prev => prev + 50);
-      showSuccess(`Excellent! Your solution is correct. Score: ${gameScore + 50} points in ${formatTime(timeSpent)}!`);
-    } catch (error) {
-      showError('Incorrect answer. Please check your calculations and try again.');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate validation
+    
+    // Validate the answer locally
+    const solution = { selectedExecutives: ['alice', 'bob', 'carol'], coefficients: { alice: '3', bob: '-3', carol: '1' }, signature: -16 };
+    
+    const correctExecs = solution.selectedExecutives.sort().join(',') === 
+                        selectedExecutives.map(e => e.id).sort().join(',');
+    
+    const coefficientsCorrect = correctExecs && solution.selectedExecutives.every((execId: string) => 
+      parseFloat(coefficients[execId]) === parseFloat(solution.coefficients[execId as keyof typeof solution.coefficients])
+    );
+    
+    const signatureCorrect = Math.abs(parseFloat(finalSignature) - solution.signature) < 0.1;
+    
+    const isCorrect = correctExecs && coefficientsCorrect && signatureCorrect;
+    
+    if (isCorrect) {
+      onSubmit(answer); // Submit the correct answer
+      showSuccess('Excellent! Mission completed successfully!');
+    } else {
+      if (!correctExecs) {
+        showError('Incorrect executives selected. You need Alice, Bob, and Carol.');
+      } else if (!coefficientsCorrect) {
+        showError('Correct executives but wrong coefficients. Check your Lagrange calculations.');
+      } else {
+        showError('Correct process but wrong final signature. Double-check your arithmetic.');
+      }
     }
 
     setIsSubmitting(false);
@@ -149,16 +151,8 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
     'Compute Final Signature',
     'Submit Solution'
   ];
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   const nextStep = () => {
     setActiveStep(prev => prev + 1);
-    setGameScore(prev => prev + 20);
   };
 
   const prevStep = () => {
@@ -176,66 +170,88 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
         border: '1px solid',
         borderColor: 'divider'
       }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'primary.main' }} style={{
-              display: "flex",
-              alignItems: "center",
-            }}>
-              <Security sx={{ mr: 2, verticalAlign: 'middle', scale: 1.5 }} />
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'space-between', 
+          alignItems: { xs: 'center', md: 'center' },
+          gap: { xs: 2, md: 0 }
+        }}>
+          <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+            <Typography 
+              variant="h4" 
+              sx={{ 
+                fontWeight: 'bold', 
+                mb: 1, 
+                color: 'primary.main',
+                fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
+                display: "flex",
+                alignItems: "center",
+                justifyContent: { xs: 'center', md: 'flex-start' }
+              }}
+            >
+              <Security sx={{ mr: 2, fontSize: { xs: '1.5rem', md: '2rem' } }} />
               Threshold Cryptography Challenge
             </Typography>
-            <Typography variant="h6" color="text.secondary">
+            <Typography variant="h6" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', md: '1.25rem' } }}>
               Master the art of distributed cryptographic signatures
             </Typography>
           </Box>
-          <Box sx={{ textAlign: 'right' }}>
-            <Box sx={{ mb: 2 }}>
-              <Chip
-                icon={<Star />}
-                label={`Score: ${gameScore}`}
-                variant="outlined"
-                color="primary"
-                sx={{ mr: 1 }}
-              />
-              <Chip
-                icon={<Timer />}
-                label={`Time: ${formatTime(timeSpent)}`}
-                variant="outlined"
-                color="primary"
-              />
-            </Box>
-            <Box>
-              <Button
-                startIcon={<School />}
-                onClick={() => setTutorialOpen(true)}
-                variant="outlined"
-                sx={{ color: 'white', borderColor: 'white', mr: 1 }}
-                size="small"
-              >
-                Tutorial
-              </Button>
-              <Button
-                startIcon={<Lightbulb />}
-                onClick={() => setShowHint(prev => !prev)}
-                variant="outlined"
-                sx={{ color: 'white', borderColor: 'white' }}
-                size="small"
-              >
-                Hint
-              </Button>
-            </Box>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'row', md: 'column' },
+            gap: 1,
+            alignItems: 'center'
+          }}>
+            <Button
+              startIcon={<School />}
+              onClick={() => setTutorialOpen(true)}
+              variant="outlined"
+              sx={{ color: 'white', borderColor: 'white' }}
+              size="small"
+            >
+              Tutorial
+            </Button>
+            <Button
+              startIcon={<Lightbulb />}
+              onClick={() => setShowHint(prev => !prev)}
+              variant="outlined"
+              sx={{ color: 'white', borderColor: 'white' }}
+              size="small"
+            >
+              Hint
+            </Button>
           </Box>
         </Box>
       </Paper>
 
       {/* Progress Stepper */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Stepper activeStep={activeStep} orientation="horizontal">
+      <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3, overflow: 'hidden' }}>
+        <Stepper 
+          activeStep={activeStep} 
+          orientation="horizontal"
+          sx={{
+            '& .MuiStepLabel-label': {
+              fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+              display: { xs: 'none', sm: 'block' }
+            },
+            '& .MuiStepLabel-labelContainer': {
+              maxWidth: { xs: '60px', sm: 'none' }
+            }
+          }}
+        >
           {steps.map((label, index) => (
             <Step key={label}>
               <StepLabel>
-                <Typography variant="h6">{label}</Typography>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                    display: { xs: index === activeStep ? 'block' : 'none', sm: 'block' }
+                  }}
+                >
+                  {label}
+                </Typography>
               </StepLabel>
             </Step>
           ))}
@@ -243,7 +259,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
         <LinearProgress
           variant="determinate"
           value={(activeStep / (steps.length - 1)) * 100}
-          sx={{ mt: 4, height: 8, borderRadius: 4 }}
+          sx={{ mt: 2, height: 8, borderRadius: 4 }}
         />
       </Paper>
 
@@ -697,7 +713,11 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
 
       {/* Tutorial Dialog */}
       <Dialog open={tutorialOpen} onClose={() => setTutorialOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
+        <DialogTitle style={{
+          display: "flex",
+          alignItems: "center",
+          padding: "10px 0px",
+        }}>
           <School sx={{ mr: 2 }} />
           Threshold Cryptography Tutorial
         </DialogTitle>

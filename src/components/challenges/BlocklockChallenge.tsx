@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -15,8 +15,6 @@ import {
   Schedule,
   Casino,
   CheckCircle,
-  Timer,
-  Star,
   Security,
   AutoFixHigh,
 } from '@mui/icons-material';
@@ -37,15 +35,7 @@ export function BlocklockChallenge({ challenge, onSubmit }: BlocklockChallengePr
   const [currentBlock] = useState(1000000);
   const [targetDelay] = useState(24);
   const [calculatedBlock, setCalculatedBlock] = useState('');
-  const [gameScore, setGameScore] = useState(0);
-  const [timeSpent, setTimeSpent] = useState(0);
   const [rollCount, setRollCount] = useState(0);
-
-  // Timer effect
-  useEffect(() => {
-    const timer = setInterval(() => setTimeSpent(prev => prev + 1), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const rollDice = useCallback(async () => {
     setIsRolling(true);
@@ -77,7 +67,7 @@ export function BlocklockChallenge({ challenge, onSubmit }: BlocklockChallengePr
         setDiceValues(finalValues);
         setIsRolling(false);
         setGamePhase('calculating');
-        setGameScore(prev => prev + 10);
+
         showInfo(`Dice rolled: ${finalValues.join('-')}. Total entropy: ${finalValues.reduce((a, b) => a + b, 0)}`);
       }
     }, rollInterval);
@@ -105,8 +95,7 @@ export function BlocklockChallenge({ challenge, onSubmit }: BlocklockChallengePr
     };
     
     if (isCorrect) {
-      setGameScore(prev => prev + 50);
-      showSuccess(`Perfect calculation! Your target block ${userAnswer} is correct. Score: ${gameScore + 50} points!`);
+      showSuccess(`Perfect calculation! Your target block ${userAnswer} is correct!`);
     } else {
       showError(`Incorrect calculation. Expected around ${correctAnswer}, but got ${userAnswer}. Try again!`);
     }
@@ -115,11 +104,7 @@ export function BlocklockChallenge({ challenge, onSubmit }: BlocklockChallengePr
     onSubmit(answer);
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -142,18 +127,7 @@ export function BlocklockChallenge({ challenge, onSubmit }: BlocklockChallengePr
             </Typography>
           </Box>
           <Box sx={{ textAlign: 'right' }}>
-            <Box sx={{ mb: 2 }}>
-              <Chip 
-                icon={<Star />} 
-                label={`Score: ${gameScore}`} 
-                sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', mr: 1 }} 
-              />
-              <Chip 
-                icon={<Timer />} 
-                label={`Time: ${formatTime(timeSpent)}`} 
-                sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} 
-              />
-            </Box>
+
           </Box>
         </Box>
       </Paper>
@@ -350,7 +324,7 @@ export function BlocklockChallenge({ challenge, onSubmit }: BlocklockChallengePr
             </Typography>
             <Typography variant="body1">
               You've successfully calculated blockchain time-locks using entropy generation.
-              <br/>Final Score: {gameScore} points in {formatTime(timeSpent)}
+              <br/>Challenge completed successfully!
               <br/>Dice Rolls: {rollCount}
             </Typography>
           </Card>

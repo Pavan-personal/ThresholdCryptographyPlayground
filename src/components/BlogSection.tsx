@@ -20,8 +20,6 @@ import {
   Schedule,
   Hub,
   ArrowBack,
-  Share,
-  BookmarkBorder,
   AccountBalance,
   CurrencyBitcoin,
   VerifiedUser,
@@ -30,8 +28,6 @@ import {
   Link,
   HowToVote,
   CardGiftcard,
-  Info,
-  Radar,
   NetworkCheck,
   Shield,
   Speed,
@@ -70,15 +66,28 @@ export function BlogSection({ onReturnToHub }: BlogSectionProps) {
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'flex-start', md: 'center' }, 
+          mb: 4,
+          gap: { xs: 2, md: 0 }
+        }}>
           <Button
             startIcon={<ArrowBack />}
             onClick={onReturnToHub}
-            sx={{ mr: 3 }}
+            sx={{ mr: { xs: 0, md: 3 } }}
           >
             Back
           </Button>
-          <Typography variant="h3" component="h1" sx={{ flexGrow: 1 }}>
+          <Typography 
+            variant="h3" 
+            component="h1" 
+            sx={{ 
+              flexGrow: 1,
+              fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3rem' }
+            }}
+          >
             Cryptography Deep Dive
           </Typography>
           {/* <Box sx={{ display: 'flex', gap: 1 }}>
@@ -106,7 +115,19 @@ export function BlogSection({ onReturnToHub }: BlogSectionProps) {
 
         {/* Navigation Tabs */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs value={tabValue} onChange={handleTabChange}>
+          <Tabs 
+            value={tabValue} 
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              '& .MuiTab-root': {
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                minHeight: { xs: 48, md: 48 },
+                minWidth: { xs: 120, md: 160 }
+              }
+            }}
+          >
             <Tab 
               label="Threshold Cryptography" 
               icon={<Security />} 

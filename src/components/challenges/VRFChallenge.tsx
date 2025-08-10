@@ -7,7 +7,7 @@ import {
   Button,
   Paper,
   Chip,
-  Alert,
+  // Alert,
   CircularProgress,
   Dialog,
   DialogTitle,
@@ -23,14 +23,12 @@ import {
   Shuffle,
   PlayArrow,
   CheckCircle,
-  Timer,
   Star,
   School,
   Security,
   Visibility,
   VisibilityOff,
   TrendingUp,
-  Psychology,
 } from '@mui/icons-material';
 import { Challenge } from '../../types/GameTypes';
 
@@ -58,8 +56,6 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
   const [deck, setDeck] = useState<GameCard[]>([]);
   const [drawnCards, setDrawnCards] = useState<GameCard[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [gameScore, setGameScore] = useState(0);
-  const [timeSpent, setTimeSpent] = useState(0);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [showProofs, setShowProofs] = useState(false);
   const [selectedProof, setSelectedProof] = useState<string | null>(null);
@@ -97,8 +93,6 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
   // Initialize game
   useEffect(() => {
     initializeGame();
-    const timer = setInterval(() => setTimeSpent(prev => prev + 1), 1000);
-    return () => clearInterval(timer);
   }, [initializeGame]);
 
   const generateMockVRFProof = (seed: number): string => {
@@ -133,7 +127,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
     setAnimatingCard(drawnCard.id);
     setDrawnCards(prev => [...prev, drawnCard]);
     setDeck(prev => prev.filter((_, index) => index !== randomIndex));
-    setGameScore(prev => prev + 10);
+
 
     setTimeout(() => {
       setAnimatingCard(null);
@@ -175,7 +169,6 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
         const final = finalSpinnerValues[randomIndex];
         setSpinnerResult(final);
         setIsSpinning(false);
-        setGameScore(prev => prev + 15);
         toast.showSuccess(`VRF Spinner selected: ${final} from [${finalSpinnerValues.join(', ')}]`);
       }
     }, spinInterval);
@@ -186,7 +179,6 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
     if (!card) return;
 
     setSelectedProof(card.vrfProof);
-    setGameScore(prev => prev + 20);
 
     // Simulate verification process
     setTimeout(() => {
@@ -198,8 +190,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
     const answer = {
       drawnCards: drawnCards.map(c => ({ id: c.id, proof: c.vrfProof })),
       spinnerResult,
-      verifications: drawnCards.length,
-      gameScore
+      verifications: drawnCards.length
     };
 
     setGamePhase('results');
@@ -216,11 +207,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
     return icons[suit as keyof typeof icons] || '?';
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: 2 }}>
@@ -244,21 +231,6 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
             </Typography>
           </Box>
           <Box sx={{ textAlign: 'right' }}>
-            <Box sx={{ mb: 2 }}>
-              <Chip
-                icon={<Star />}
-                label={`Score: ${gameScore}`}
-                variant="outlined"
-                color="primary"
-                sx={{ mr: 1 }}
-              />
-              <Chip
-                icon={<Timer />}
-                label={`Time: ${formatTime(timeSpent)}`}
-                variant="outlined"
-                color="primary"
-              />
-            </Box>
             <Box>
               <Button
                 startIcon={<School />}
@@ -804,7 +776,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
               <li>Generated spinner result: {spinnerResult}</li>
               <li>Each generation was unpredictable before execution</li>
               <li>All results are verifiable by cryptographic proofs</li>
-              <li>Total score: {gameScore} points in {formatTime(timeSpent)}</li>
+              <li>Challenge completed successfully</li>
             </Box>
           </Card>
           {/* </Alert> */}

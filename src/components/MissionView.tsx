@@ -81,9 +81,9 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
               <Typography variant="body2" paragraph>
                 <strong>Technology:</strong> {mission.cryptoTech.replace('dcipher', 'dCipher')}
               </Typography>
-              <Typography variant="body2">
+              {/* <Typography variant="body2">
                 <strong>Rewards:</strong> +{mission.rewards.experience} XP, Skill advancement
-              </Typography>
+              </Typography> */}
             </Box>
             
             <Box sx={{ flex: 1 }}>
@@ -153,11 +153,11 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
                       alignItems: 'center',
                       mb: 2
                     }}>
-                      {challenge.timeLimit && (
+                      {/* {challenge.timeLimit && (
                         <Typography variant="caption" color="text.secondary">
                           Time Limit: {Math.floor(challenge.timeLimit / 60)}:{(challenge.timeLimit % 60).toString().padStart(2, '0')}
                         </Typography>
-                      )}
+                      )} */}
                       <Typography variant="caption" color="text.secondary">
                         Attempts: {challenge.attempts}/{challenge.maxAttempts}
                       </Typography>
@@ -225,7 +225,7 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
             </Typography>
             <Typography variant="body2">
               Congratulations! You have mastered {mission.cryptoTech.toUpperCase()} technology. 
-              You earned {mission.rewards.experience} experience points and advanced your cryptographic skills.
+              {/* You earned {mission.rewards.experience} experience points and advanced your cryptographic skills. */}
             </Typography>
           </Paper>
         )}

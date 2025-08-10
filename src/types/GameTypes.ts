@@ -58,7 +58,7 @@ export interface NPCDialogue {
 
 export interface GameState {
   player: Player;
-  currentScene: 'intro' | 'hub' | 'mission' | 'challenge' | 'dialogue' | 'blog';
+  currentScene: 'intro' | 'hub' | 'mission' | 'challenge' | 'dialogue' | 'blog' | 'mission-complete';
   activeMission?: Mission;
   activeChallenge?: Challenge;
   activeDialogue?: NPCDialogue;

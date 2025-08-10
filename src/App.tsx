@@ -8,6 +8,7 @@ import { MissionView } from './components/MissionView';
 import { ChallengeView } from './components/ChallengeView';
 import { IntroScreen } from './components/IntroScreen';
 import { BlogSection } from './components/BlogSection';
+import { MissionComplete } from './components/MissionComplete';
 import { theme } from './theme';
 import './App.css';
 
@@ -38,6 +39,8 @@ function App() {
         );
       case 'blog':
         return <BlogSection onReturnToHub={actions.returnToHub} />;
+      case 'mission-complete':
+        return <MissionComplete mission={gameState.activeMission!} onReturnToHub={actions.returnToHub} />;
       default:
         return <GameHub gameState={gameState} onStartMission={actions.startMission} onGoToBlog={actions.goToBlog} />;
     }

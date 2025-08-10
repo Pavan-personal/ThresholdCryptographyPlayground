@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import { GameState, Player, Mission, Challenge } from '../types/GameTypes';
+import { useState, useCallback, } from 'react';
+import { GameState, Player,  } from '../types/GameTypes';
 import { generateMissions } from '../data/missions';
 
 const initialPlayer: Player = {
@@ -115,7 +115,6 @@ export function useGameEngine() {
     
     // Custom validation for threshold challenge
     let isCorrect = false;
-    let feedback = "";
     
     if (challenge.id === 'threshold-math') {
       const solution = challenge.solution as any;
@@ -125,23 +124,21 @@ export function useGameEngine() {
       const correctExecs = solution.selectedExecutives.sort().join(',') === 
                           userAnswer.selectedExecutives.sort().join(',');
       
+      // Check coefficients
+      const coefficientsCorrect = correctExecs && 
+        solution.selectedExecutives.every((execId: string) => 
+          parseFloat(userAnswer.coefficients[execId]) === parseFloat(solution.coefficients[execId])
+        );
+      
       // Check signature (allow some tolerance for floating point)
       const signatureCorrect = Math.abs(userAnswer.signature - solution.signature) < 0.1;
       
-      if (correctExecs && signatureCorrect) {
+      if (correctExecs && coefficientsCorrect && signatureCorrect) {
         isCorrect = true;
-        feedback = "Perfect! You correctly calculated the threshold signature.";
-      } else if (correctExecs) {
-        feedback = "Right executives selected, but check your math calculations.";
-      } else if (signatureCorrect) {
-        feedback = "Correct final result, but different executive combination.";
-      } else {
-        feedback = "Incorrect. Review the Lagrange interpolation formula.";
       }
     } else {
       // Default comparison for other challenges
       isCorrect = JSON.stringify(answer) === JSON.stringify(challenge.solution);
-      feedback = isCorrect ? "Correct!" : "Incorrect answer.";
     }
     
     setGameState(prev => {
@@ -178,26 +175,21 @@ export function useGameEngine() {
     });
 
     if (isCorrect) {
-      addNotification(feedback);
-      const skillType = gameState.activeMission?.cryptoTech;
-      if (skillType) {
-        updatePlayerSkill(skillType, 15);
-      }
-      addExperience(50);
-      
       // Check if mission is complete
       setTimeout(() => {
         const mission = gameState.missions.find(m => m.id === gameState.activeMission?.id);
         if (mission?.challenges.every(c => c.isCompleted)) {
-          completeMission();
+          // Navigate to mission complete page
+          setGameState(prev => ({
+            ...prev,
+            currentScene: 'mission-complete'
+          }));
         }
       }, 1000);
-    } else {
-      addNotification(`${feedback} ${challenge.maxAttempts - challenge.attempts - 1} attempts left.`);
     }
 
     return isCorrect;
-  }, [gameState.activeChallenge, gameState.activeMission, gameState.missions, addNotification, updatePlayerSkill, addExperience]);
+  }, [gameState.activeChallenge, gameState.activeMission, gameState.missions]);
 
   const completeMission = useCallback(() => {
     if (!gameState.activeMission) return;

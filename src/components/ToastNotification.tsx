@@ -2,8 +2,8 @@ import React, { useState, createContext, useContext, ReactNode } from 'react';
 import {
   Snackbar,
   Alert,
-  Slide,
-  SlideProps,
+  // Slide,
+  // SlideProps,
   Box,
 } from '@mui/material';
 import {
@@ -40,10 +40,6 @@ export const useToast = (): ToastContextType => {
   }
   return context;
 };
-
-function SlideTransition(props: SlideProps) {
-  return <Slide {...props} direction="up" />;
-}
 
 interface ToastProviderProps {
   children: ReactNode;

@@ -7,7 +7,6 @@ import {
   Button,
   Box,
   Chip,
-  LinearProgress,
   AppBar,
   Toolbar,
 } from '@mui/material';
@@ -48,7 +47,7 @@ const getDifficultyColor = (difficulty: string) => {
 };
 
 export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps) {
-  const { player, missions } = gameState;
+  const { missions } = gameState;
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -79,36 +78,7 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
       </AppBar>
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        {/* Player Stats */}
-        <Card sx={{ mb: 4 }}>
-          <CardContent>
-            <Typography variant="h5" gutterBottom>
-              Your Progress
-            </Typography>
-            <Box sx={{ 
-              display: 'flex', 
-              flexWrap: 'wrap', 
-              gap: 3,
-              justifyContent: 'space-between'
-            }}>
-              {Object.entries(player.skills).map(([skill, level]) => (
-                <Box key={skill} sx={{ minWidth: 200, flex: 1 }}>
-                  <Typography variant="subtitle2" sx={{ mb: 1, textTransform: 'capitalize' }}>
-                    {skill.replace('dcipher', 'dCipher')} Skill
-                  </Typography>
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={level} 
-                    sx={{ height: 8, borderRadius: 4 }}
-                  />
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    {level}/100
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </CardContent>
-        </Card>
+
 
         {/* Missions */}
         <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
@@ -124,7 +94,8 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
             <Card 
               key={mission.id}
               sx={{ 
-                border: mission.isCompleted ? '2px solid #4caf50' : '1px solid #333',
+                border: mission.isCompleted ? '2px solid #4caf50' : '1px solid',
+                borderColor: mission.isCompleted ? '#4caf50' : 'divider',
                 '&:hover': {
                   boxShadow: 3,
                   transform: 'translateY(-2px)'
@@ -170,13 +141,11 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
                       />
                     </Box>
                     
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      Rewards: +{mission.rewards.experience} XP
-                    </Typography>
-                    
-                    <Typography variant="body2">
-                      Challenges: {mission.challenges.filter(c => c.isCompleted).length}/{mission.challenges.length} completed
-                    </Typography>
+                    {mission.isCompleted && (
+                      <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 'bold' }}>
+                        ✓ Completed this session
+                      </Typography>
+                    )}
                   </Box>
                   
                   {/* Action Button */}
