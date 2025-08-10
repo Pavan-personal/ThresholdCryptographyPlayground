@@ -56,7 +56,7 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
       <AppBar position="static" sx={{ bgcolor: 'background.paper' }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Threshold Cryptography Playground
+            ThresholdCryptographyArena
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button
@@ -66,14 +66,14 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
               size="small"
               sx={{ mr: 2 }}
             >
-              Learn More
+              Blogs
             </Button>
-            <Typography variant="body2">
+            {/* <Typography variant="body2">
               Level {player.level}
             </Typography>
             <Typography variant="body2">
               {player.experience} XP
-            </Typography>
+            </Typography> */}
           </Box>
         </Toolbar>
       </AppBar>

@@ -28,7 +28,7 @@ export function IntroScreen({ onStartGame }: IntroScreenProps) {
         {/* Header */}
         <Box sx={{ textAlign: 'center', mb: 6 }}>
           <Typography variant="h2" component="h1" gutterBottom>
-            Threshold Cryptography Playground
+            Threshold Cryptography Arena
           </Typography>
           <Typography variant="h5" sx={{ mb: 4, color: 'text.secondary' }}>
             Master cryptographic technologies through hands-on challenges
@@ -172,7 +172,7 @@ export function IntroScreen({ onStartGame }: IntroScreenProps) {
             onClick={onStartGame}
             sx={{ px: 6, py: 2 }}
           >
-            Enter Academy
+            Enter Arena
           </Button>
         </Box>
       </Container>

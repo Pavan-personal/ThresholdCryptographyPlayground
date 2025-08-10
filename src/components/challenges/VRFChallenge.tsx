@@ -306,9 +306,8 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
       {/* Mission Briefing */}
       <Fade in={gamePhase === 'setup'}>
         <Paper sx={{ p: 4, mb: 3, display: gamePhase === 'setup' ? 'block' : 'none' }}>
-          <Alert severity="info" sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              <Psychology sx={{ mr: 1 }} />
+          <Card sx={{ mb: 3, border: '1px solid rgba(255,255,255,0.3)', p: 3 }}>
+            <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }} style={{ fontWeight: 'bold' }}>
               Mission: Prove Fair Randomness
             </Typography>
             <Typography variant="body1">
@@ -316,9 +315,11 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
               is rigged. Using <strong>Verifiable Random Functions (VRF)</strong>, you must prove that
               every card draw is genuinely random and verifiable by all players.
             </Typography>
-          </Alert>
-
-          <Typography variant="h5" gutterBottom sx={{ color: 'primary.main' }}>
+          </Card>
+          <Typography variant="h6" gutterBottom sx={{ mb: 3, color: 'primary.main' }} style={{
+            fontWeight: 'bold',
+            textAlign: 'center',
+          }}>
             Understanding VRF
           </Typography>
 
@@ -458,17 +459,17 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
               {/* Final Result */}
               {spinnerResult && (
                 <Box sx={{
-                  bgcolor: 'success.light',
+                  bgcolor: 'success.main',
                   borderRadius: 2,
                   p: 3,
                   mb: 3,
                   border: '1px solid',
                   borderColor: 'success.main'
                 }}>
-                  <Typography variant="h4" color="success.main" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  <Typography variant="h4" color="white" sx={{ fontWeight: 'bold', mb: 1 }}>
                     Final VRF Result: {spinnerResult}
                   </Typography>
-                  <Typography variant="body1" color="text.secondary">
+                  <Typography variant="body1" color="white">
                     Selected from the spinner values using cryptographically secure VRF
                   </Typography>
                 </Box>
@@ -592,7 +593,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
                         height: 200,
                         cursor: 'pointer',
                         borderRadius: 3,
-                        bgcolor: 'background.paper',
+                        bgcolor: 'white',
                         border: card.id === animatingCard ? '3px solid' : '2px solid',
                         borderColor: card.id === animatingCard ? 'success.main' : 'divider',
                         boxShadow: card.id === animatingCard ? 4 : 2,
@@ -747,6 +748,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
               disabled={isDrawing || deck.length === 0}
               startIcon={<Shuffle />}
               size="large"
+              // sx={{ mt: 1 }}
             >
               {isDrawing ? 'Drawing...' : 'Draw Random Card'}
             </Button>
@@ -774,23 +776,39 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
       {/* Results Phase */}
       <Fade in={gamePhase === 'results'}>
         <Paper sx={{ p: 4, textAlign: 'center', display: gamePhase === 'results' ? 'block' : 'none' }}>
-          <Typography variant="h4" gutterBottom sx={{ color: 'success.main' }}>
+          <Typography variant="h4" gutterBottom sx={{ color: 'success.main' }} style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "10px 0px",
+          }}>
             <CheckCircle sx={{ mr: 2, fontSize: 48 }} />
             VRF Challenge Complete!
           </Typography>
 
-          <Alert severity="success" sx={{ mb: 3, maxWidth: 600, mx: 'auto' }}>
+          {/* <Alert severity="success" sx={{ mb: 3, maxWidth: 600, mx: 'auto' }}> */}
+          <Card sx={{ mb: 3, border: '1px solid rgba(255,255,255,0.3)', p: 3, bgcolor: 'black' }}>
             <Typography variant="h6" gutterBottom>
               Congratulations! You've successfully demonstrated VRF properties:
             </Typography>
-            <Box component="ul" sx={{ textAlign: 'left', pl: 2 }}>
+            <Box sx={{
+              p: 2,
+              borderRadius: 2,
+              color: 'white',
+              fontFamily: 'monospace',
+              width: 'fit-content',
+              textAlign: 'left',
+              margin: '0 auto',
+            }}>
               <li>Generated {drawnCards.length} provably random cards</li>
-              {spinnerResult && <li>Generated spinner result: {spinnerResult}</li>}
+              <li>Generated spinner result: {spinnerResult}</li>
               <li>Each generation was unpredictable before execution</li>
               <li>All results are verifiable by cryptographic proofs</li>
               <li>Total score: {gameScore} points in {formatTime(timeSpent)}</li>
             </Box>
-          </Alert>
+          </Card>
+          {/* </Alert> */}
+
 
           <Typography variant="h6" paragraph>
             In real applications, VRF ensures fair:
@@ -806,7 +824,10 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
 
       {/* VRF Tutorial Dialog */}
       <Dialog open={tutorialOpen} onClose={() => setTutorialOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
+        <DialogTitle style={{
+          display: "flex",
+          alignItems: "center",
+        }}>
           <School sx={{ mr: 2 }} />
           How Verifiable Random Functions Work
         </DialogTitle>
@@ -863,7 +884,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
               overflow: 'auto',
               border: '1px solid',
               borderColor: 'grey.300',
-color: 'black'
+              color: 'black'
             }}>
               {selectedProof}
             </Paper>

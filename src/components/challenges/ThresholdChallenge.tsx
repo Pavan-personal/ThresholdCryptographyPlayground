@@ -25,13 +25,13 @@ import {
   Zoom,
   Container,
 } from '@mui/material';
-import { 
-  Security, 
-  Calculate, 
-  CheckCircle, 
-  Error, 
-  Help, 
-  PlayArrow, 
+import {
+  Security,
+  Calculate,
+  CheckCircle,
+  Error,
+  Help,
+  PlayArrow,
   Shuffle,
   Lightbulb,
   AutoFixHigh,
@@ -71,7 +71,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
     { id: 'dave', name: 'Dave', share: 31, x: 4, selected: false, avatar: 'D', role: 'COO' },
     { id: 'eve', name: 'Eve', share: 12, x: 5, selected: false, avatar: 'E', role: 'CSO' }
   ]);
-  
+
   const [coefficients, setCoefficients] = useState<{ [key: string]: string }>({});
   const [finalSignature, setFinalSignature] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,7 +96,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
   const toggleExecutive = useCallback((id: string) => {
     setAnimatingCard(id);
     setTimeout(() => setAnimatingCard(null), 300);
-    
+
     setExecutives(prev => prev.map(exec => {
       if (exec.id === id) {
         const newSelected = !exec.selected;
@@ -107,7 +107,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
       }
       return exec;
     }));
-    
+
     if (selectedExecutives.length === 2) {
       setGameScore(prev => prev + 10);
     }
@@ -116,7 +116,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
   const calculateHint = useCallback((exec: Executive) => {
     const others = selectedExecutives.filter(e => e.id !== exec.id);
     if (others.length !== 2) return '';
-    
+
     const numerator = others.map(e => (0 - e.x)).reduce((a, b) => a * b, 1);
     const denominator = others.map(e => (exec.x - e.x)).reduce((a, b) => a * b, 1);
     return (numerator / denominator).toFixed(1);
@@ -124,13 +124,13 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
 
   const submitAnswer = async () => {
     setIsSubmitting(true);
-    
+
     const answer = {
       selectedExecutives: selectedExecutives.map(e => e.id),
       coefficients,
       signature: parseFloat(finalSignature)
     };
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
       onSubmit(answer);
@@ -139,13 +139,13 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
     } catch (error) {
       showError('Incorrect answer. Please check your calculations and try again.');
     }
-    
+
     setIsSubmitting(false);
   };
 
   const steps = [
     'Select 3 Executives',
-    'Calculate Coefficients', 
+    'Calculate Coefficients',
     'Compute Final Signature',
     'Submit Solution'
   ];
@@ -168,9 +168,9 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
       {/* Game Header with Stats */}
-      <Paper sx={{ 
-        p: 3, 
-        mb: 3, 
+      <Paper sx={{
+        p: 3,
+        mb: 3,
         bgcolor: 'background.paper',
         borderRadius: 2,
         border: '1px solid',
@@ -178,8 +178,11 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
       }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'primary.main' }}>
-              <Security sx={{ mr: 2, verticalAlign: 'middle' }} />
+            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'primary.main' }} style={{
+              display: "flex",
+              alignItems: "center",
+            }}>
+              <Security sx={{ mr: 2, verticalAlign: 'middle', scale: 1.5 }} />
               Threshold Cryptography Challenge
             </Typography>
             <Typography variant="h6" color="text.secondary">
@@ -188,16 +191,16 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
           </Box>
           <Box sx={{ textAlign: 'right' }}>
             <Box sx={{ mb: 2 }}>
-              <Chip 
-                icon={<Star />} 
-                label={`Score: ${gameScore}`} 
+              <Chip
+                icon={<Star />}
+                label={`Score: ${gameScore}`}
                 variant="outlined"
                 color="primary"
-                sx={{ mr: 1 }} 
+                sx={{ mr: 1 }}
               />
-              <Chip 
-                icon={<Timer />} 
-                label={`Time: ${formatTime(timeSpent)}`} 
+              <Chip
+                icon={<Timer />}
+                label={`Time: ${formatTime(timeSpent)}`}
                 variant="outlined"
                 color="primary"
               />
@@ -214,7 +217,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
               </Button>
               <Button
                 startIcon={<Lightbulb />}
-                onClick={() => setShowHint(!showHint)}
+                onClick={() => setShowHint(prev => !prev)}
                 variant="outlined"
                 sx={{ color: 'white', borderColor: 'white' }}
                 size="small"
@@ -237,60 +240,62 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
             </Step>
           ))}
         </Stepper>
-        <LinearProgress 
-          variant="determinate" 
-          value={(activeStep / (steps.length - 1)) * 100} 
-          sx={{ mt: 2, height: 8, borderRadius: 4 }}
+        <LinearProgress
+          variant="determinate"
+          value={(activeStep / (steps.length - 1)) * 100}
+          sx={{ mt: 4, height: 8, borderRadius: 4 }}
         />
       </Paper>
 
       {/* Mission Briefing */}
       <Fade in={activeStep === 0}>
         <Paper sx={{ p: 4, mb: 3, display: activeStep === 0 ? 'block' : 'none' }}>
-          <Card sx={{ mb: 3, bgcolor: 'warning.light', color: 'warning.contrastText' }}>
+          <Card sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }} style={{
+                display: 'flex',
+                alignItems: 'center',
+              }}>
                 <Casino sx={{ mr: 1, verticalAlign: 'middle' }} />
                 Mission Briefing: The Bank Vault Heist
               </Typography>
               <Typography variant="body1">
-                A sophisticated bank vault requires exactly <strong>3 out of 5</strong> executive signatures 
-                to authorize a critical $1M emergency transfer. The executives are scattered across different 
-                locations, and you need to coordinate them to create a valid threshold signature using 
+                A sophisticated bank vault requires exactly <strong>3 out of 5</strong> executive signatures
+                to authorize a critical $1M emergency transfer. The executives are scattered across different
+                locations, and you need to coordinate them to create a valid threshold signature using
                 <strong> Lagrange interpolation</strong>.
               </Typography>
             </CardContent>
           </Card>
 
-          <Typography variant="h5" gutterBottom sx={{ color: 'primary.main' }}>
+          <Typography variant="h5" gutterBottom sx={{ color: 'primary.main', textAlign: 'center',m: 4 }}>
             Select Your Team of 3 Executives
           </Typography>
-          
-          <Box sx={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
-            gap: 3, 
-            mb: 4,
-            justifyItems: 'center'
+
+          <Box sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 3,
+            justifyContent: 'center'
           }}>
             {executives.map((exec) => (
-              <Zoom 
-                key={exec.id} 
-                in={true} 
+              <Zoom
+                key={exec.id}
+                in={true}
                 style={{ transitionDelay: `${executives.indexOf(exec) * 100}ms` }}
               >
-                <Card 
-                  sx={{ 
+                <Card
+                  sx={{
                     cursor: 'pointer',
-                    height: 180,
-                    border: exec.selected ? '3px solid' : '2px solid',
-                    borderColor: exec.selected ? 'primary.main' : 'divider',
-                    bgcolor: exec.selected ? 'primary.light' : 'background.paper',
+                    // height: 180,
+                    border: exec.selected ? '2px solid #4caf50' : '1px solid',
+                    borderColor: exec.selected ? '#4caf50' : 'divider',
+                    bgcolor: 'background.paper',
                     transform: animatingCard === exec.id ? 'scale(0.95)' : 'scale(1)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&:hover': { 
-                      boxShadow: 6,
-                      transform: 'translateY(-8px)' 
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      boxShadow: 2,
+                      transform: 'scale(1.02)'
                     },
                   }}
                   onClick={() => toggleExecutive(exec.id)}
@@ -300,7 +305,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                       width: 60,
                       height: 60,
                       borderRadius: '50%',
-                      bgcolor: exec.selected ? 'primary.main' : 'grey.300',
+                      bgcolor: exec.selected ? '#4caf50' : 'grey.600',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -319,32 +324,24 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                     <Typography variant="body2" color="text.secondary" gutterBottom>
                       {exec.role}
                     </Typography>
-                    <Chip 
-                      label={`Share: ${exec.share}`} 
-                      size="small" 
-                      sx={{ mr: 1, mb: 1 }} 
-                    />
-                    <Chip 
-                      label={`x = ${exec.x}`} 
-                      size="small" 
-                      color="primary" 
+                    <Chip
+                      label={`Share: ${exec.share}`}
+                      size="small"
                       variant="outlined"
                     />
-                    {exec.selected && (
-                      <Box sx={{ mt: 2 }}>
-                        <CheckCircle sx={{ color: 'success.main', fontSize: 32 }} />
-                        <Typography variant="caption" display="block" color="success.main">
-                          Selected!
-                        </Typography>
-                      </Box>
-                    )}
+                    <Chip
+                      label={`x = ${exec.x}`}
+                      size="small"
+                      variant="outlined"
+                      sx={{ color: 'text.primary' }}
+                    />
                   </CardContent>
                 </Card>
               </Zoom>
             ))}
           </Box>
-          
-          <Box sx={{ textAlign: 'center', mb: 3 }}>
+
+          <Box sx={{ textAlign: 'center', m: 3 }}>
             <Typography variant="h4" color={selectedExecutives.length === 3 ? 'success.main' : 'text.primary'}>
               Selected: {selectedExecutives.length}/3
             </Typography>
@@ -373,19 +370,23 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
       {/* Coefficient Calculation */}
       <Fade in={activeStep === 1}>
         <Paper sx={{ p: 4, mb: 3, display: activeStep === 1 ? 'block' : 'none' }}>
-          <Typography variant="h5" gutterBottom sx={{ color: 'primary.main' }}>
+          <Typography variant="h5" gutterBottom sx={{ color: 'primary.main' }} style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px 0px",
+          }}>
             <Calculate sx={{ mr: 2 }} />
             Calculate Lagrange Coefficients
           </Typography>
-          
-          <Card sx={{ mb: 4, bgcolor: 'info.light' }}>
+
+          <Card sx={{ mb: 4, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
                 Interactive Formula Calculator
               </Typography>
-              <Box sx={{ 
-                fontFamily: 'monospace', 
-                fontSize: '1.4rem', 
+              <Box sx={{
+                fontFamily: 'monospace',
+                fontSize: '1.4rem',
                 textAlign: 'center',
                 bgcolor: 'primary.main',
                 color: 'white',
@@ -408,11 +409,11 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
 
           {showCalculation && (
             <Slide direction="down" in={showCalculation}>
-              <Paper sx={{ p: 3, mb: 4, bgcolor: 'grey.50' }}>
-                <Typography variant="h6" gutterBottom color="primary">
+              <Paper sx={{ p: 3, mb: 4, bgcolor: "primary.main" }}>
+                <Typography variant="h6" gutterBottom>
                   Step-by-Step Example: Alice (x=1), Bob (x=2), Carol (x=3)
                 </Typography>
-                
+
                 <Box sx={{ display: 'grid', gap: 3 }}>
                   {[
                     { name: 'Alice', x: 1, calc: 'L₁(0) = (0-2)(0-3) / (1-2)(1-3) = (-2)(-3) / (-1)(-2) = 6/2 = 3.0' },
@@ -420,9 +421,9 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                     { name: 'Carol', x: 3, calc: 'L₃(0) = (0-1)(0-2) / (3-1)(3-2) = (-1)(-2) / (2)(1) = 2/2 = 1.0' }
                   ].map((item, index) => (
                     <Fade key={index} in timeout={1000 + index * 300}>
-                      <Box sx={{ 
-                        p: 2, 
-                        border: '2px solid', 
+                      <Box sx={{
+                        p: 2,
+                        border: '2px solid',
                         borderColor: 'primary.light',
                         borderRadius: 2,
                         bgcolor: 'white'
@@ -430,7 +431,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                         <Typography variant="subtitle1" fontWeight="bold" color="primary">
                           {item.name}:
                         </Typography>
-                        <Typography variant="body1" sx={{ fontFamily: 'monospace', fontSize: '1.1rem' }}>
+                        <Typography variant="body1" sx={{ fontFamily: 'monospace', fontSize: '1.1rem', color: "primary.main" }}>
                           {item.calc}
                         </Typography>
                       </Box>
@@ -441,18 +442,22 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
             </Slide>
           )}
 
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" gutterBottom style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px 0px",
+          }}>
             Now calculate for your team: {selectedExecutives.map(e => e.name).join(', ')}
           </Typography>
-          
+
           <Box sx={{ display: 'grid', gap: 3 }}>
             {selectedExecutives.map((exec, index) => {
               const others = selectedExecutives.filter(e => e.id !== exec.id);
               const hint = calculateHint(exec);
-              
+
               return (
                 <Slide key={exec.id} direction="right" in timeout={500 + index * 200}>
-                  <Card sx={{ 
+                  <Card sx={{
                     p: 3,
                     border: '2px solid',
                     borderColor: coefficients[exec.id] ? 'success.main' : 'grey.300',
@@ -479,23 +484,24 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                         <CheckCircle sx={{ color: 'success.main' }} />
                       )}
                     </Box>
-                    
-                    <Typography variant="body1" sx={{ 
-                      fontFamily: 'monospace', 
+
+                    <Typography variant="body1" sx={{
+                      fontFamily: 'monospace',
                       mb: 3,
                       fontSize: '1.2rem',
                       p: 2,
-                      bgcolor: 'grey.100',
-                      borderRadius: 1
+                      borderRadius: 1,
+                      color: "white",
+                      border: "1px solid rgba(255,255,255,0.3)",
                     }}>
                       L<sub>{exec.x}</sub>(0) = {others.map(e => `(0-${e.x})`).join('')} / {others.map(e => `(${exec.x}-${e.x})`).join('')}
                     </Typography>
-                    
+
                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                       <TextField
                         label={`Coefficient for ${exec.name}`}
                         value={coefficients[exec.id] || ''}
-                        onChange={(e) => setCoefficients(prev => ({...prev, [exec.id]: e.target.value}))}
+                        onChange={(e) => setCoefficients(prev => ({ ...prev, [exec.id]: e.target.value }))}
                         type="number"
                         inputProps={{ step: 0.1 }}
                         sx={{ flexGrow: 1 }}
@@ -540,42 +546,47 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
       {/* Final Calculation */}
       <Fade in={activeStep === 2}>
         <Paper sx={{ p: 4, mb: 3, display: activeStep === 2 ? 'block' : 'none' }}>
-          <Typography variant="h5" gutterBottom sx={{ color: 'primary.main' }}>
+          <Typography variant="h5" gutterBottom sx={{ color: 'primary.main' }} style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px 0px",
+          }}>
             <Star sx={{ mr: 2 }} />
             Combine the Shares
           </Typography>
-          
-          <Card sx={{ mb: 4, bgcolor: 'success.light' }}>
+
+          <Card sx={{ mb: 4, bgcolor: '' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Final Formula:
               </Typography>
-              <Box sx={{ 
-                fontFamily: 'monospace', 
-                fontSize: '1.4rem', 
+              <Box sx={{
+                fontFamily: 'monospace',
+                fontSize: '1.4rem',
                 textAlign: 'center',
-                bgcolor: 'success.main',
+                // bgcolor: 'success.main',
                 color: 'white',
                 p: 3,
-                borderRadius: 2
+                borderRadius: 2,
+                border: "1px solid rgba(255,255,255,0.3)",
               }}>
                 Signature = Σ(share<sub>i</sub> × L<sub>i</sub>(0))
               </Box>
             </CardContent>
           </Card>
 
-          <Card sx={{ p: 4, mb: 4, bgcolor: 'primary.light' }}>
+          <Card sx={{ p: 4, mb: 4, bgcolor: '' }}>
             <Typography variant="h6" gutterBottom color="white">
               Live Calculation Preview:
             </Typography>
-            
+
             <Box sx={{ display: 'grid', gap: 2, mb: 3 }}>
               {selectedExecutives.map((exec) => {
                 const coeff = parseFloat(coefficients[exec.id] || '0');
                 const product = exec.share * coeff;
                 return (
-                  <Box key={exec.id} sx={{ 
-                    display: 'flex', 
+                  <Box key={exec.id} sx={{
+                    display: 'flex',
                     justifyContent: 'space-between',
                     bgcolor: 'rgba(255,255,255,0.1)',
                     p: 2,
@@ -591,9 +602,9 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                 );
               })}
             </Box>
-            
-            <Box sx={{ 
-              borderTop: '2px solid rgba(255,255,255,0.3)', 
+
+            <Box sx={{
+              borderTop: '2px solid rgba(255,255,255,0.3)',
               pt: 2,
               textAlign: 'center'
             }}>
@@ -605,7 +616,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
               </Typography>
             </Box>
           </Card>
-          
+
           <TextField
             label="Enter Your Final Signature"
             value={finalSignature}
@@ -640,15 +651,20 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
       {/* Final Submission */}
       <Fade in={activeStep === 3}>
         <Paper sx={{ p: 4, textAlign: 'center', display: activeStep === 3 ? 'block' : 'none' }}>
-          <Typography variant="h4" gutterBottom sx={{ color: 'primary.main' }}>
+          <Typography variant="h4" gutterBottom sx={{ color: 'primary.main' }} style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "10px 0px",
+          }}>
             <Security sx={{ mr: 2, fontSize: 48 }} />
             Ready to Submit?
           </Typography>
-          
+
           <Typography variant="h6" paragraph>
             You've calculated the threshold signature: <strong>{finalSignature}</strong>
           </Typography>
-          
+
           <Box sx={{ my: 4 }}>
             {isSubmitting ? (
               <Box>
@@ -670,7 +686,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
               </Button>
             )}
           </Box>
-          
+
           {/* Submit result is now handled by toast notifications */}
 
           <Button onClick={prevStep} startIcon={<Calculate />} sx={{ mt: 2 }}>
@@ -687,7 +703,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
         </DialogTitle>
         <DialogContent>
           <Typography variant="body1" paragraph>
-            Threshold cryptography is like a high-security vault that requires multiple keys to open. 
+            Threshold cryptography is like a high-security vault that requires multiple keys to open.
             In our 3-of-5 scheme, any 3 executives can combine their secret shares to create a valid signature.
           </Typography>
           <Typography variant="h6" gutterBottom>Key Concepts:</Typography>

@@ -111,7 +111,7 @@ export function generateMissions(): Mission[] {
         {
           id: 'vrf-verification',
           type: 'code',
-          title: 'VRF Proof Detective 🕵️',
+          title: 'VRF Proof Detective',
           description: 'Examine the VRF proofs from the slot machine. Real randomness should pass cryptographic verification.',
           instruction: 'Step through the VRF verification process: 1) Parse the proof, 2) Verify the elliptic curve math, 3) Check if output matches proof',
           solution: { proofValid: false, randomnessScore: 0.1, verdict: 'rigged' },
@@ -128,7 +128,7 @@ export function generateMissions(): Mission[] {
         {
           id: 'randomness-analysis',
           type: 'puzzle',
-          title: 'Pattern Hunter 📊',
+          title: 'Pattern Hunter',
           description: 'Analyze 100 "random" slot machine outcomes to find the hidden pattern.',
           instruction: 'Look at the sequence of wins/losses and identify the predictable pattern Tony is using.',
           solution: { pattern: 'lose-lose-lose-tiny-win', period: 4 },

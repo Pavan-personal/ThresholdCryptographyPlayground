@@ -76,19 +76,19 @@ export function BlogSection({ onReturnToHub }: BlogSectionProps) {
             onClick={onReturnToHub}
             sx={{ mr: 3 }}
           >
-            Back to Academy
+            Back
           </Button>
           <Typography variant="h3" component="h1" sx={{ flexGrow: 1 }}>
             Cryptography Deep Dive
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          {/* <Box sx={{ display: 'flex', gap: 1 }}>
             <Button startIcon={<Share />} variant="outlined" size="small">
               Share
             </Button>
             <Button startIcon={<BookmarkBorder />} variant="outlined" size="small">
               Save
             </Button>
-          </Box>
+          </Box> */}
         </Box>
 
         {/* Author Info */}
@@ -96,7 +96,7 @@ export function BlogSection({ onReturnToHub }: BlogSectionProps) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Avatar sx={{ bgcolor: 'primary.main' }}>CA</Avatar>
             <Box>
-              <Typography variant="h6">Crypto Academy</Typography>
+              <Typography variant="h6">Crypto Arena</Typography>
               <Typography variant="body2" color="text.secondary">
                 Educational content on advanced cryptographic technologies • 5 min read
               </Typography>
