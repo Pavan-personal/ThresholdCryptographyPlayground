@@ -105,7 +105,7 @@ export function BlogSection({ onReturnToHub }: BlogSectionProps) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Avatar sx={{ bgcolor: 'primary.main' }}>CA</Avatar>
             <Box>
-              <Typography variant="h6">Crypto Arena</Typography>
+              <Typography variant="h6">Crypto Playground</Typography>
               <Typography variant="body2" color="text.secondary">
                 Educational content on advanced cryptographic technologies • 5 min read
               </Typography>

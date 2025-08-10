@@ -91,7 +91,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
         }
         return { ...exec, selected: newSelected };
       }
-            return exec;
+      return exec;
     }));
   }, [selectedExecutives.length, threshold]);
 
@@ -107,6 +107,27 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
   const submitAnswer = async () => {
     setIsSubmitting(true);
 
+    // Validate that we have the required inputs
+    if (selectedExecutives.length !== 3) {
+      showError(`You must select exactly 3 executives. Currently selected: ${selectedExecutives.length}`);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!finalSignature || finalSignature.trim() === '') {
+      showError('You must enter a final signature value.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Check if coefficients are entered for selected executives
+    const missingCoefficients = selectedExecutives.filter(exec => !coefficients[exec.id] || coefficients[exec.id].trim() === '');
+    if (missingCoefficients.length > 0) {
+      showError(`Missing coefficients for: ${missingCoefficients.map(e => e.name).join(', ')}`);
+      setIsSubmitting(false);
+      return;
+    }
+
     const answer = {
       selectedExecutives: selectedExecutives.map(e => e.id),
       coefficients,
@@ -114,31 +135,73 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
     };
 
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate validation
-    
-    // Validate the answer locally
-    const solution = { selectedExecutives: ['alice', 'bob', 'carol'], coefficients: { alice: '3', bob: '-3', carol: '1' }, signature: -16 };
-    
-    const correctExecs = solution.selectedExecutives.sort().join(',') === 
-                        selectedExecutives.map(e => e.id).sort().join(',');
-    
-    const coefficientsCorrect = correctExecs && solution.selectedExecutives.every((execId: string) => 
-      parseFloat(coefficients[execId]) === parseFloat(solution.coefficients[execId as keyof typeof solution.coefficients])
-    );
-    
-    const signatureCorrect = Math.abs(parseFloat(finalSignature) - solution.signature) < 0.1;
-    
-    const isCorrect = correctExecs && coefficientsCorrect && signatureCorrect;
-    
+
+    // Calculate the correct coefficients for ANY 3 executives using Lagrange interpolation
+    const calculateCorrectCoefficients = (execs: Executive[]) => {
+      if (execs.length !== 3) return null;
+
+      // Sort by x position for consistent calculation
+      const sortedExecs = execs.sort((a, b) => a.x - b.x);
+
+      // Calculate Lagrange coefficients for x=0 (reconstructing at origin)
+      const coefficients: { [key: string]: number } = {};
+      let expectedSignature = 0;
+
+      sortedExecs.forEach((exec, i) => {
+        let numerator = 1;
+        let denominator = 1;
+
+        // Calculate L_i(0) = ∏(0-x_j)/(x_i-x_j) for j≠i
+        sortedExecs.forEach((otherExec, j) => {
+          if (i !== j) {
+            numerator *= (0 - otherExec.x);
+            denominator *= (exec.x - otherExec.x);
+          }
+        });
+
+        const coefficient = numerator / denominator;
+        coefficients[exec.id] = coefficient;
+        expectedSignature += exec.share * coefficient;
+      });
+
+      return { coefficients, expectedSignature };
+    };
+
+    // Get the correct solution for the user's chosen executives
+    const correctSolution = calculateCorrectCoefficients(selectedExecutives);
+
+    if (!correctSolution) {
+      showError('Please select exactly 3 executives.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Check if coefficients match the calculated ones
+    const coefficientsCorrect = selectedExecutives.every(exec => {
+      const userCoeff = parseFloat(coefficients[exec.id] || '0');
+      const correctCoeff = correctSolution.coefficients[exec.id];
+      return Math.abs(userCoeff - correctCoeff) < 0.1;
+    });
+
+    // Check if final signature matches
+    const signatureCorrect = Math.abs(parseFloat(finalSignature) - correctSolution.expectedSignature) < 0.1;
+
+    const isCorrect = coefficientsCorrect && signatureCorrect;
+
+    // Optional debug info (uncomment if needed)
+    // console.log('Selected executives:', selectedExecutives.map(e => e.id));
+    // console.log('Coefficients:', coefficients);
+    // console.log('Final signature:', finalSignature);
+
     if (isCorrect) {
       onSubmit(answer); // Submit the correct answer
-      showSuccess('Excellent! Mission completed successfully!');
+      showSuccess('🎉 VAULT UNLOCKED! You successfully reconstructed the $1,000,000 signature! The money is yours! 💰');
     } else {
-      if (!correctExecs) {
-        showError('Incorrect executives selected. You need Alice, Bob, and Carol.');
-      } else if (!coefficientsCorrect) {
-        showError('Correct executives but wrong coefficients. Check your Lagrange calculations.');
+      if (!coefficientsCorrect) {
+        const selectedNames = selectedExecutives.map(e => e.name).join(', ');
+        showError(`🧮 Mathematical error in coefficients for ${selectedNames}! Check your Lagrange interpolation calculations.`);
       } else {
-        showError('Correct process but wrong final signature. Double-check your arithmetic.');
+        showError(`🔢 Wrong final signature! You got ${finalSignature}, but the vault signature should be ${correctSolution.expectedSignature.toFixed(2)}. Double-check your arithmetic!`);
       }
     }
 
@@ -170,19 +233,19 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
         border: '1px solid',
         borderColor: 'divider'
       }}>
-        <Box sx={{ 
-          display: 'flex', 
+        <Box sx={{
+          display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
-          justifyContent: 'space-between', 
+          justifyContent: 'space-between',
           alignItems: { xs: 'center', md: 'center' },
           gap: { xs: 2, md: 0 }
         }}>
           <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
-            <Typography 
-              variant="h4" 
-              sx={{ 
-                fontWeight: 'bold', 
-                mb: 1, 
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 'bold',
+                mb: 1,
                 color: 'primary.main',
                 fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
                 display: "flex",
@@ -197,8 +260,8 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
               Master the art of distributed cryptographic signatures
             </Typography>
           </Box>
-          <Box sx={{ 
-            display: 'flex', 
+          <Box sx={{
+            display: 'flex',
             flexDirection: { xs: 'row', md: 'column' },
             gap: 1,
             alignItems: 'center'
@@ -227,8 +290,8 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
 
       {/* Progress Stepper */}
       <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3, overflow: 'hidden' }}>
-        <Stepper 
-          activeStep={activeStep} 
+        <Stepper
+          activeStep={activeStep}
           orientation="horizontal"
           sx={{
             '& .MuiStepLabel-label': {
@@ -243,9 +306,9 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
           {steps.map((label, index) => (
             <Step key={label}>
               <StepLabel>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
+                <Typography
+                  variant="body2"
+                  sx={{
                     fontSize: { xs: '0.7rem', sm: '0.875rem' },
                     display: { xs: index === activeStep ? 'block' : 'none', sm: 'block' }
                   }}
@@ -259,7 +322,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
         <LinearProgress
           variant="determinate"
           value={(activeStep / (steps.length - 1)) * 100}
-          sx={{ mt: 2, height: 8, borderRadius: 4 }}
+          sx={{ mt: 4, height: 8, borderRadius: 4 }}
         />
       </Paper>
 
@@ -273,20 +336,42 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                 alignItems: 'center',
               }}>
                 <Casino sx={{ mr: 1, verticalAlign: 'middle' }} />
-                Mission Briefing: The Bank Vault Heist
+                Mission: The $1,000,000 Vault Heist
               </Typography>
-              <Typography variant="body1">
-                A sophisticated bank vault requires exactly <strong>3 out of 5</strong> executive signatures
-                to authorize a critical $1M emergency transfer. The executives are scattered across different
-                locations, and you need to coordinate them to create a valid threshold signature using
-                <strong> Lagrange interpolation</strong>.
+
+              <Typography variant="body1" paragraph>
+                <strong>The Situation:</strong> The Great Bank of Cryptopia's vault contains <strong>$1,000,000</strong> secured by threshold cryptography.
+                The bank's security system split the vault's digital signature into <strong>5 secret pieces</strong> and gave one piece to each of the 5 executives.
+              </Typography>
+
+              <Typography variant="body1" paragraph>
+                <strong>The Security Rule:</strong> To prevent any single person from stealing the money, the vault requires <strong>at least 3 executives</strong> to work together.
+                This is called "3-of-5 threshold cryptography" - you need 3 out of 5 pieces to reconstruct the original signature.
+              </Typography>
+
+              <Typography variant="body1" paragraph>
+                <strong>Your Mission:</strong> You've convinced 3 executives to help you "test the security system."
+                Select any 3 executives from the 5 available, use their secret pieces, and reconstruct the vault signature using <strong>Lagrange interpolation mathematics</strong>.
+              </Typography>
+
+              <Typography variant="body2" sx={{ color: 'white', p: 2, borderRadius: 1, mt: 2, border: "1px solid rgba(255,255,255,0.3)" }}>
+                <strong>Why 5 cards but only need 3?</strong> That's the beauty of threshold cryptography!
+                You can choose any combination of 3 executives - Alice+Bob+Carol, Bob+Carol+Dave, Alice+Carol+Eve, etc.
+                Each combination will give you different coefficients but the same mathematical principle applies.
+                It provides both security (no single point of failure) and flexibility (multiple valid combinations).
               </Typography>
             </CardContent>
           </Card>
 
-          <Typography variant="h5" gutterBottom sx={{ color: 'primary.main', textAlign: 'center',m: 4 }}>
+          <Typography variant="h5" gutterBottom sx={{ color: 'primary.main', textAlign: 'center', m: 4, fontWeight: 'bold' }}>
             Select Your Team of 3 Executives
           </Typography>
+
+          <Box sx={{ mb: 3, p: 2, border: '1px solid rgba(255,255,255)', borderRadius: 1 }}>
+            <Typography variant="body2" sx={{ color: 'white', textAlign: 'center' }}>
+              Your Choice: Pick any 3 executives you want to work with! Each combination will give you a different mathematical path, but all lead to the same $1M vault signature.
+            </Typography>
+          </Box>
 
           <Box sx={{
             display: 'flex',
@@ -341,7 +426,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                       {exec.role}
                     </Typography>
                     <Chip
-                      label={`Share: ${exec.share}`}
+                      label={`Share: ${exec.share} (piece of $1M signature)`}
                       size="small"
                       variant="outlined"
                     />
@@ -367,6 +452,25 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
               </Typography>
             )}
           </Box>
+
+          {/* Dynamic Hint for Selected Executives */}
+          {selectedExecutives.length === 3 && (
+            <Paper sx={{ p: 3, mb: 4, bgcolor: '', border: '1px solid', borderColor: '' }}>
+              <Typography variant="h6" gutterBottom sx={{ color: 'white', display: 'flex', alignItems: 'center' }}>
+                <Lightbulb sx={{ mr: 1 }} />
+                Hint for {selectedExecutives.map(e => e.name).join(', ')}:
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'white', mb: 2 }}>
+                For your selected executives, you need to calculate Lagrange coefficients using the formula:
+              </Typography>
+              <Box sx={{ fontFamily: 'monospace', border: '1px solid rgba(255,255,255)', p: 2, borderRadius: 1, mb: 2 }}>
+                L<sub>i</sub>(0) = ∏<sub>j≠i</sub> (0 - x<sub>j</sub>) / (x<sub>i</sub> - x<sub>j</sub>)
+              </Box>
+              <Typography variant="body2" sx={{ color: 'white' }}>
+                Where x values are: {selectedExecutives.map(e => `${e.name}=${e.x}`).join(', ')}
+              </Typography>
+            </Paper>
+          )}
 
           <Box sx={{ textAlign: 'center' }}>
             <Button
@@ -427,15 +531,27 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
             <Slide direction="down" in={showCalculation}>
               <Paper sx={{ p: 3, mb: 4, bgcolor: "primary.main" }}>
                 <Typography variant="h6" gutterBottom>
-                  Step-by-Step Example: Alice (x=1), Bob (x=2), Carol (x=3)
+                  Step-by-Step Example for {selectedExecutives.map(e => `${e.name} (x=${e.x})`).join(', ')}:
                 </Typography>
 
                 <Box sx={{ display: 'grid', gap: 3 }}>
-                  {[
-                    { name: 'Alice', x: 1, calc: 'L₁(0) = (0-2)(0-3) / (1-2)(1-3) = (-2)(-3) / (-1)(-2) = 6/2 = 3.0' },
-                    { name: 'Bob', x: 2, calc: 'L₂(0) = (0-1)(0-3) / (2-1)(2-3) = (-1)(-3) / (1)(-1) = 3/(-1) = -3.0' },
-                    { name: 'Carol', x: 3, calc: 'L₃(0) = (0-1)(0-2) / (3-1)(3-2) = (-1)(-2) / (2)(1) = 2/2 = 1.0' }
-                  ].map((item, index) => (
+                  {selectedExecutives.map((exec, index) => {
+                    // Calculate the actual coefficient for this executive
+                    let numerator = 1;
+                    let denominator = 1;
+
+                    selectedExecutives.forEach((otherExec, j) => {
+                      if (index !== j) {
+                        numerator *= (0 - otherExec.x);
+                        denominator *= (exec.x - otherExec.x);
+                      }
+                    });
+
+                    const coefficient = numerator / denominator;
+                    const calc = `L${index + 1}(0) = ∏(0-x_j)/(${exec.x}-x_j) = ${numerator}/${denominator} = ${coefficient.toFixed(2)}`;
+
+                    return { name: exec.name, x: exec.x, calc };
+                  }).map((item, index) => (
                     <Fade key={index} in timeout={1000 + index * 300}>
                       <Box sx={{
                         p: 2,
@@ -521,10 +637,10 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                         type="number"
                         inputProps={{ step: 0.1 }}
                         sx={{ flexGrow: 1 }}
-                        placeholder="Enter calculated value"
+                        placeholder="Enter the Lagrange coefficient"
                       />
                       {showHint && (
-                        <Tooltip title={`Answer: ${hint}`}>
+                        <Tooltip title={`Answer: ~${hint}`}>
                           <IconButton sx={{ bgcolor: 'warning.light' }}>
                             <Lightbulb />
                           </IconButton>
@@ -634,7 +750,8 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
           </Card>
 
           <TextField
-            label="Enter Your Final Signature"
+            label="🔓 Enter the $1M Vault Signature"
+            placeholder="The magic number to unlock the vault (copy from total above)"
             value={finalSignature}
             onChange={(e) => setFinalSignature(e.target.value)}
             type="number"
@@ -688,7 +805,7 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
                 <Typography variant="h6">
                   Submitting to secure vault...
                 </Typography>
-                <LinearProgress sx={{ mt: 2, maxWidth: 400, mx: 'auto' }} />
+                <LinearProgress sx={{ mt: 2, maxWidth: 400, mx: 'auto', borderRadius: 1 }} />
               </Box>
             ) : (
               <Button
@@ -712,30 +829,96 @@ export function ThresholdChallenge({ challenge, onSubmit }: ThresholdChallengePr
       </Fade>
 
       {/* Tutorial Dialog */}
-      <Dialog open={tutorialOpen} onClose={() => setTutorialOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle style={{
+      <Dialog
+        open={tutorialOpen}
+        onClose={() => setTutorialOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            bgcolor: 'background.paper',
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider'
+          }
+        }}
+      >
+        <DialogTitle sx={{
           display: "flex",
           alignItems: "center",
-          padding: "10px 0px",
+          p: 3,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.paper'
         }}>
-          <School sx={{ mr: 2 }} />
-          Threshold Cryptography Tutorial
+          <School sx={{ mr: 2, color: 'primary.main', fontSize: 32 }} />
+          <Typography variant="h5" fontWeight="bold">
+            Threshold Cryptography Tutorial
+          </Typography>
         </DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" paragraph>
+        <DialogContent sx={{ p: 3 }}>
+          <Typography variant="body1" paragraph sx={{ mb: 3 }}>
             Threshold cryptography is like a high-security vault that requires multiple keys to open.
             In our 3-of-5 scheme, any 3 executives can combine their secret shares to create a valid signature.
           </Typography>
-          <Typography variant="h6" gutterBottom>Key Concepts:</Typography>
-          <Box component="ul">
-            <li><strong>Secret Sharing:</strong> The master key is split into 5 pieces</li>
-            <li><strong>Threshold:</strong> Only 3 pieces are needed to reconstruct it</li>
-            <li><strong>Lagrange Interpolation:</strong> Mathematical method to combine shares</li>
-            <li><strong>Security:</strong> 2 or fewer shares reveal nothing about the secret</li>
+
+          <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
+            Key Concepts:
+          </Typography>
+
+          <Box sx={{ pl: 2 }}>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body1" fontWeight="bold" color="primary.main">
+                • Secret Sharing:
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+                The master key is split into 5 pieces
+              </Typography>
+            </Box>
+
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body1" fontWeight="bold" color="primary.main">
+                • Threshold:
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+                Only 3 pieces are needed to reconstruct it
+              </Typography>
+            </Box>
+
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body1" fontWeight="bold" color="primary.main">
+                • Lagrange Interpolation:
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+                Mathematical method to combine shares
+              </Typography>
+            </Box>
+
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body1" fontWeight="bold" color="primary.main">
+                • Security:
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+                2 or fewer shares reveal nothing about the secret
+              </Typography>
+            </Box>
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setTutorialOpen(false)}>Got it!</Button>
+        <DialogActions sx={{
+          p: 3,
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.paper'
+        }}>
+          <Button
+            onClick={() => setTutorialOpen(false)}
+            startIcon={<CheckCircle />}
+            variant="contained"
+            size="large"
+            sx={{ px: 4 }}
+          >
+            Got it!
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>

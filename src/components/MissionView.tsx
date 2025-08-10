@@ -48,10 +48,10 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {mission.title.replace(/[🏦🎰⏰🌐🎭]/g, '').trim()}
           </Typography>
-          <Chip 
-            label={mission.difficulty} 
-            color={mission.difficulty === 'beginner' ? 'success' : 
-                   mission.difficulty === 'intermediate' ? 'warning' : 'error'}
+          <Chip
+            label={mission.difficulty}
+            color={mission.difficulty === 'beginner' ? 'success' :
+              mission.difficulty === 'intermediate' ? 'warning' : 'error'}
           />
         </Toolbar>
       </AppBar>
@@ -65,9 +65,9 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
           <Typography variant="body1" sx={{ mb: 4 }}>
             {mission.description.replace(/[🚨☕🎲📅🌍😉😅🎯]/g, '')}
           </Typography>
-          
-          <Box sx={{ 
-            display: 'flex', 
+
+          <Box sx={{
+            display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             gap: 4
           }}>
@@ -85,7 +85,7 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
                 <strong>Rewards:</strong> +{mission.rewards.experience} XP, Skill advancement
               </Typography> */}
             </Box>
-            
+
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" gutterBottom>
                 Progress
@@ -98,9 +98,9 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
                   <CheckCircle sx={{ color: 'success.main' }} />
                 )}
               </Box>
-              <LinearProgress 
-                variant="determinate" 
-                value={progressPercent} 
+              <LinearProgress
+                variant="determinate"
+                value={progressPercent}
                 sx={{ height: 8, borderRadius: 4 }}
               />
             </Box>
@@ -111,18 +111,18 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
         <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
           Mission Challenges
         </Typography>
-        
+
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {mission.challenges.map((challenge, index) => (
-            <Card 
+            <Card
               key={challenge.id}
-              sx={{ 
+              sx={{
                 border: challenge.isCompleted ? '2px solid #4caf50' : '1px solid #333',
               }}
             >
               <CardContent>
-                <Box sx={{ 
-                  display: 'flex', 
+                <Box sx={{
+                  display: 'flex',
                   flexDirection: { xs: 'column', md: 'row' },
                   alignItems: { xs: 'flex-start', md: 'center' },
                   gap: 3
@@ -136,20 +136,20 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
                       {challenge.isCompleted && (
                         <CheckCircle sx={{ color: 'success.main' }} />
                       )}
-                      <Chip 
-                        label={challenge.type} 
-                        size="small" 
+                      <Chip
+                        label={challenge.type}
+                        size="small"
                       />
                     </Box>
-                    
+
                     <Typography variant="body2" sx={{ mb: 2 }}>
                       {challenge.description}
                     </Typography>
-                    
-                    <Box sx={{ 
-                      display: 'flex', 
+
+                    <Box sx={{
+                      display: 'flex',
                       flexWrap: 'wrap',
-                      gap: 2, 
+                      gap: 2,
                       alignItems: 'center',
                       mb: 2
                     }}>
@@ -158,9 +158,9 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
                           Time Limit: {Math.floor(challenge.timeLimit / 60)}:{(challenge.timeLimit % 60).toString().padStart(2, '0')}
                         </Typography>
                       )} */}
-                      <Typography variant="caption" color="text.secondary">
+                      {/* <Typography variant="caption" color="text.secondary">
                         Attempts: {challenge.attempts}/{challenge.maxAttempts}
-                      </Typography>
+                      </Typography> */}
                     </Box>
 
                     {/* Challenge Preview */}
@@ -176,10 +176,10 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
                       </Typography>
                     </Paper>
                   </Box>
-                  
+
                   {/* Action Button */}
-                  <Box sx={{ 
-                    display: 'flex', 
+                  <Box sx={{
+                    display: 'flex',
                     minWidth: { xs: '100%', md: 200 },
                     justifyContent: { xs: 'stretch', md: 'flex-end' }
                   }}>
@@ -191,14 +191,6 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
                         sx={{ minWidth: { xs: '100%', md: 160 } }}
                       >
                         Review Challenge
-                      </Button>
-                    ) : challenge.attempts >= challenge.maxAttempts ? (
-                      <Button 
-                        variant="outlined" 
-                        disabled
-                        sx={{ minWidth: { xs: '100%', md: 160 } }}
-                      >
-                        Max Attempts Reached
                       </Button>
                     ) : (
                       <Button
@@ -224,7 +216,7 @@ export function MissionView({ mission, onStartChallenge, onReturnToHub }: Missio
               Mission Completed!
             </Typography>
             <Typography variant="body2">
-              Congratulations! You have mastered {mission.cryptoTech.toUpperCase()} technology. 
+              Congratulations! You have mastered {mission.cryptoTech.toUpperCase()} technology.
               {/* You earned {mission.rewards.experience} experience points and advanced your cryptographic skills. */}
             </Typography>
           </Paper>

@@ -55,7 +55,7 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
       <AppBar position="static" sx={{ bgcolor: 'background.paper' }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            ThresholdCryptographyArena
+            Playground
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button
@@ -63,7 +63,6 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
               onClick={onGoToBlog}
               variant="outlined"
               size="small"
-              sx={{ mr: 2 }}
             >
               Blogs
             </Button>
@@ -112,23 +111,23 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
                 }}>
                   {/* Mission Info */}
                   <Box sx={{ flex: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Box sx={{ mr: 2, color: 'primary.main' }}>
+                    <Box sx={{ mb: 2, display: 'flex', alignItems: "center", gap: 1}}>
+                      {/* <Box sx={{  color: 'primary.main' }}> */}
                         {getMissionIcon(mission.cryptoTech)}
-                      </Box>
-                      <Typography variant="h6" component="h2">
+                      {/* </Box> */}
+                      {/* <Typography variant="h6" component="h2"> */}
                         {mission.title.replace(/[🏦🎰⏰🌐🎭]/g, '').trim()}
-                      </Typography>
+                      {/* </Typography> */}
                       {mission.isCompleted && (
                         <Star sx={{ ml: 2, color: 'warning.main' }} />
                       )}
                     </Box>
                     
-                    <Typography variant="body2" sx={{ mb: 2, minHeight: 60 }}>
+                    <Typography variant="body2" sx={{ mb: 2 }}>
                       {mission.description.replace(/[🚨☕🎲📅🌍😉😅🎯]/g, '')}
                     </Typography>
                     
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                       <Chip 
                         label={mission.difficulty} 
                         size="small" 

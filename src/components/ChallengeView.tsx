@@ -90,11 +90,11 @@ export function ChallengeView({ challenge, onSubmitAnswer, onReturnToMission }: 
           
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Chip label={challenge.type} size="small" />
-            <Chip 
+            {/* <Chip 
               label={`${challenge.attempts}/${challenge.maxAttempts} attempts`} 
               size="small" 
               variant="outlined"
-            />
+            /> */}
           </Box>
         </Toolbar>
       </AppBar>

@@ -37,7 +37,7 @@ export function IntroScreen({ onStartGame }: IntroScreenProps) {
               mb: 2
             }}
           >
-            Threshold Cryptography Arena
+            Threshold Cryptography Playground
           </Typography>
           <Typography 
             variant="h5" 
@@ -70,7 +70,7 @@ export function IntroScreen({ onStartGame }: IntroScreenProps) {
               transition: 'all 0.3s'
             }}
           >
-            Enter Arena
+            Enter Playground
           </Button>
         </Box>
 
@@ -235,7 +235,7 @@ export function IntroScreen({ onStartGame }: IntroScreenProps) {
             onClick={onStartGame}
             sx={{ px: 6, py: 2 }}
           >
-            Enter Arena
+            Enter Playground
           </Button>
         </Box>
       </Container>

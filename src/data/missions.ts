@@ -78,7 +78,7 @@ export function generateMissions(): Mission[] {
     },
     {
       id: 'vrf-casino',
-      title: '🎰 The Rigged Casino Caper',
+      title: 'The Rigged Casino Caper',
       description: 'Casino owner Tony "Lucky" Riggs is using fake randomness to cheat players! Use VRF to prove his slot machines are rigged and save the gamblers! 🎲',
       difficulty: 'intermediate',
       cryptoTech: 'vrf',
@@ -92,7 +92,7 @@ export function generateMissions(): Mission[] {
       npcDialogue: [
         {
           id: 'casino-owner',
-          speaker: 'Tony "Lucky" Riggs 🤵',
+          speaker: 'Tony "Lucky" Riggs',
           text: "What?! My casino is perfectly fair! Just because I win 99.9% of the time doesn't mean anything is rigged! These machines use... uh... quantum randomness! Yeah, that's it! 😈",
           emotion: 'angry',
           choices: [
@@ -102,7 +102,7 @@ export function generateMissions(): Mission[] {
         },
         {
           id: 'angry-gambler',
-          speaker: 'Broke Gambler Betty 🎰',
+          speaker: 'Broke Gambler Betty',
           text: "I've lost my life savings here! These machines NEVER pay out! There's got to be something fishy going on. Please help us prove this place is a scam! 😭",
           emotion: 'worried'
         }
@@ -145,7 +145,7 @@ export function generateMissions(): Mission[] {
     },
     {
       id: 'blocklock-vault',
-      title: '⏰ The Time-Locked Treasure Vault',
+      title: 'The Time-Locked Treasure Vault',
       description: 'Evil Dr. Timezone has locked away the cure for "Monday Blues" in a time-locked vault! Calculate the exact block height to release it before the weekend ends! 📅',
       difficulty: 'intermediate',
       cryptoTech: 'blocklock',
@@ -159,13 +159,13 @@ export function generateMissions(): Mission[] {
       npcDialogue: [
         {
           id: 'dr-timezone',
-          speaker: 'Dr. Timezone ⏰',
+          speaker: 'Dr. Timezone',
           text: "Mwahahaha! I've locked the Monday Blues cure until exactly Friday 5 PM! But I used blockchain time-locks, so if you calculate wrong, everyone suffers through Monday FOREVER! 😈",
           emotion: 'angry'
         },
         {
           id: 'worried-worker',
-          speaker: 'Office Worker Sam 💼',
+          speaker: 'Office Worker Sam',
           text: "Please help us! Without the Monday cure, I'll have to pretend to work on spreadsheets all day! The horror! You must calculate the exact block height for Friday 5 PM! ⏰",
           emotion: 'worried',
           choices: [
@@ -178,7 +178,7 @@ export function generateMissions(): Mission[] {
         {
           id: 'block-timing',
           type: 'math',
-          title: 'Blockchain Time Machine ⏰',
+          title: 'Blockchain Time Machine',
           description: 'Calculate the exact block height for Friday 5 PM release, accounting for variable block times and network congestion.',
           instruction: 'Given current block height, average block time, and variance, calculate the target block for exactly Friday 5 PM.',
           solution: { targetBlock: 847563, confidence: 95, riskLevel: 'low' },
@@ -195,7 +195,7 @@ export function generateMissions(): Mission[] {
         {
           id: 'risk-assessment',
           type: 'puzzle',
-          title: 'Risk Calculator 📊',
+          title: 'Risk Calculator',
           description: 'Assess the probability of early/late unlock and plan contingencies.',
           instruction: 'Calculate risk scenarios: What if blocks come 20% faster? What if network congestion occurs?',
           solution: { earlyRisk: 15, lateRisk: 10, contingencyPlan: 'dual-lock' },
@@ -211,7 +211,7 @@ export function generateMissions(): Mission[] {
     },
     {
       id: 'dcipher-network',
-      title: '🌐 The Network Chaos Chronicles',
+      title: 'The Network Chaos Chronicles',
       description: 'Cyber villain Network Nemesis is attacking the global internet! Design a resilient dCipher network that can survive his chaos and keep memes flowing! 🌍',
       difficulty: 'advanced',
       cryptoTech: 'dcipher',
@@ -225,13 +225,13 @@ export function generateMissions(): Mission[] {
       npcDialogue: [
         {
           id: 'network-nemesis',
-          speaker: 'Network Nemesis 💀',
+          speaker: 'Network Nemesis',
           text: "I will bring down the entire internet! No more cat videos! No more memes! I'll partition your networks, DDoS your nodes, and create chaos! Your puny dCipher won't save you! 😈",
           emotion: 'angry'
         },
         {
           id: 'meme-lord',
-          speaker: 'Supreme Meme Lord 👑',
+          speaker: 'Supreme Meme Lord',
           text: "The memes... they're disappearing! Without a resilient network, humanity will lose its most precious treasure - the ability to share funny pictures with text! You must save us! 😱",
           emotion: 'worried',
           choices: [
@@ -244,7 +244,7 @@ export function generateMissions(): Mission[] {
         {
           id: 'network-topology',
           type: 'puzzle',
-          title: 'Network Architect Master 🏗️',
+          title: 'Network Architect Master',
           description: 'Design a network topology that can survive multiple simultaneous attacks while maintaining performance.',
           instruction: 'Place nodes strategically and create redundant paths that can handle DDoS, network partitions, and latency attacks.',
           solution: { 
@@ -266,7 +266,7 @@ export function generateMissions(): Mission[] {
         {
           id: 'attack-simulation',
           type: 'timing',
-          title: 'Chaos Survivor 🔥',
+          title: 'Chaos Survivor',
           description: 'Your network faces real-time attacks! Route messages efficiently while under fire.',
           instruction: 'Network Nemesis launches attacks in real-time. Adapt your routing to maintain connectivity.',
           solution: { messagesDelivered: 95, avgLatency: 150, networkUptime: 98 },
