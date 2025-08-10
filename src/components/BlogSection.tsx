@@ -64,41 +64,41 @@ export function BlogSection({ onReturnToHub }: BlogSectionProps) {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        {/* Header */}
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: { xs: 'column', md: 'row' },
-          alignItems: { xs: 'flex-start', md: 'center' }, 
-          mb: 4,
-          gap: { xs: 2, md: 0 }
-        }}>
+      <Container maxWidth="lg">
+        {/* Main Title */}
+        <Typography
+          variant="h3"
+          component="h1"
+          sx={{
+            // textAlign: 'center',
+            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+            py: 4,
+            color: 'primary.main'
+          }}
+        >
           <Button
+            sx={{ mr: 2 }}
             startIcon={<ArrowBack />}
-            onClick={onReturnToHub}
-            sx={{ mr: { xs: 0, md: 3 } }}
+            // onClick={onReturnToHub}
+            onClick={(e) => {
+              e.preventDefault();
+              window.open('https://thresholdcryptoplayground.vercel.app', '_blank');
+            }}
+          // variant="outlined"
+          // size="small"
+          // sx={{
+          //   color: 'primary.contrastText',
+          //   borderColor: 'primary.contrastText',
+          //   '&:hover': {
+          //     borderColor: 'primary.contrastText',
+          //     bgcolor: 'rgba(255,255,255,0.1)'
+          //   }
+          // }}
           >
             Back
           </Button>
-          <Typography 
-            variant="h3" 
-            component="h1" 
-            sx={{ 
-              flexGrow: 1,
-              fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3rem' }
-            }}
-          >
-            Cryptography Deep Dive
-          </Typography>
-          {/* <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button startIcon={<Share />} variant="outlined" size="small">
-              Share
-            </Button>
-            <Button startIcon={<BookmarkBorder />} variant="outlined" size="small">
-              Save
-            </Button>
-          </Box> */}
-        </Box>
+          Cryptography Deep Dive
+        </Typography>
 
         {/* Author Info */}
         <Paper sx={{ p: 3, mb: 4 }}>
@@ -115,8 +115,8 @@ export function BlogSection({ onReturnToHub }: BlogSectionProps) {
 
         {/* Navigation Tabs */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs 
-            value={tabValue} 
+          <Tabs
+            value={tabValue}
             onChange={handleTabChange}
             variant="scrollable"
             scrollButtons="auto"
@@ -128,19 +128,19 @@ export function BlogSection({ onReturnToHub }: BlogSectionProps) {
               }
             }}
           >
-            <Tab 
-              label="Threshold Cryptography" 
-              icon={<Security />} 
+            <Tab
+              label="Threshold Cryptography"
+              icon={<Security />}
               iconPosition="start"
             />
-            <Tab 
-              label="VRF & Blocklock" 
-              icon={<Casino />} 
+            <Tab
+              label="VRF & Blocklock"
+              icon={<Casino />}
               iconPosition="start"
             />
-            <Tab 
-              label="dCipher Networks" 
-              icon={<Hub />} 
+            <Tab
+              label="dCipher Networks"
+              icon={<Hub />}
               iconPosition="start"
             />
           </Tabs>
@@ -197,8 +197,8 @@ function ThresholdCryptographyArticle() {
       </Typography>
 
       <Typography variant="body1" paragraph sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}>
-        Threshold cryptography is a revolutionary approach to securing sensitive information by distributing 
-        cryptographic keys among multiple parties. Instead of a single point of failure, it creates a system 
+        Threshold cryptography is a revolutionary approach to securing sensitive information by distributing
+        cryptographic keys among multiple parties. Instead of a single point of failure, it creates a system
         where a minimum number of participants (the "threshold") must collaborate to perform cryptographic operations.
       </Typography>
 
@@ -230,7 +230,7 @@ function ThresholdCryptographyArticle() {
               Banking & Finance
             </Typography>
             <Typography variant="body2" paragraph>
-              Major banks use threshold cryptography for high-value transactions. Instead of one person 
+              Major banks use threshold cryptography for high-value transactions. Instead of one person
               controlling the signing key, multiple executives must approve transfers above certain amounts.
             </Typography>
             <Chip label="JPMorgan Chase" size="small" sx={{ mr: 1 }} />
@@ -246,7 +246,7 @@ function ThresholdCryptographyArticle() {
               Cryptocurrency Wallets
             </Typography>
             <Typography variant="body2" paragraph>
-              Multi-signature wallets protect billions in cryptocurrency. Popular implementations require 
+              Multi-signature wallets protect billions in cryptocurrency. Popular implementations require
               2-of-3 or 3-of-5 signatures for transactions, preventing single points of failure.
             </Typography>
             <Chip label="Gnosis Safe" size="small" sx={{ mr: 1 }} />
@@ -262,7 +262,7 @@ function ThresholdCryptographyArticle() {
               Certificate Authorities
             </Typography>
             <Typography variant="body2" paragraph>
-              Root certificate authorities use threshold schemes to protect the master keys that secure 
+              Root certificate authorities use threshold schemes to protect the master keys that secure
               the entire internet's PKI infrastructure.
             </Typography>
             <Chip label="DigiCert" size="small" sx={{ mr: 1 }} />
@@ -279,14 +279,14 @@ function ThresholdCryptographyArticle() {
       <Card sx={{ my: 3, bgcolor: 'background.paper' }}>
         <CardContent>
           <Typography variant="body1" paragraph>
-            The mathematical foundation relies on polynomial interpolation. A polynomial of degree t-1 
+            The mathematical foundation relies on polynomial interpolation. A polynomial of degree t-1
             requires exactly t points to be uniquely determined.
           </Typography>
-          
-          <Box sx={{ 
-            bgcolor: 'grey.900', 
-            p: 3, 
-            borderRadius: 1, 
+
+          <Box sx={{
+            bgcolor: 'grey.900',
+            p: 3,
+            borderRadius: 1,
             fontFamily: 'monospace',
             mb: 2
           }}>
@@ -297,9 +297,9 @@ function ThresholdCryptographyArticle() {
               where a₀ is the secret, and each participant gets (xᵢ, f(xᵢ))
             </Typography>
           </Box>
-          
+
           <Typography variant="body2" color="text.secondary">
-            The security comes from the mathematical fact that t-1 points on a polynomial 
+            The security comes from the mathematical fact that t-1 points on a polynomial
             reveal no information about the polynomial's value at any other point.
           </Typography>
         </CardContent>
@@ -310,8 +310,8 @@ function ThresholdCryptographyArticle() {
       </Typography>
 
       <Typography variant="body1" paragraph sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}>
-        As our digital infrastructure becomes more critical, single points of failure become 
-        unacceptable risks. Threshold cryptography provides mathematical guarantees that no 
+        As our digital infrastructure becomes more critical, single points of failure become
+        unacceptable risks. Threshold cryptography provides mathematical guarantees that no
         single entity—whether malicious or compromised—can abuse cryptographic powers.
       </Typography>
 
@@ -322,7 +322,7 @@ function ThresholdCryptographyArticle() {
             Key Takeaway
           </Typography>
           <Typography variant="body1" sx={{ color: 'white' }}>
-            Threshold cryptography transforms "trust" from a binary concept into a mathematical 
+            Threshold cryptography transforms "trust" from a binary concept into a mathematical
             one, enabling secure collaboration without requiring complete trust in any single party.
           </Typography>
         </CardContent>
@@ -368,8 +368,8 @@ function VRFAndBlocklockArticle() {
       </Typography>
 
       <Typography variant="body1" paragraph sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}>
-        VRFs solve one of the hardest problems in distributed systems: generating randomness that 
-        everyone can verify but no one can predict or manipulate. Unlike simple random number generators, 
+        VRFs solve one of the hardest problems in distributed systems: generating randomness that
+        everyone can verify but no one can predict or manipulate. Unlike simple random number generators,
         VRFs provide cryptographic proofs that the randomness was generated correctly.
       </Typography>
 
@@ -400,7 +400,7 @@ function VRFAndBlocklockArticle() {
               Blockchain Gaming
             </Typography>
             <Typography variant="body2" paragraph>
-              Games like Axie Infinity and CryptoKitties use VRF for fair breeding mechanics 
+              Games like Axie Infinity and CryptoKitties use VRF for fair breeding mechanics
               and loot box openings. Players can verify that rare items are truly random.
             </Typography>
             <Chip label="Chainlink VRF" size="small" sx={{ mr: 1 }} />
@@ -416,7 +416,7 @@ function VRFAndBlocklockArticle() {
               Lottery Systems
             </Typography>
             <Typography variant="body2" paragraph>
-              National lotteries and DeFi protocols use VRF to ensure fair winner selection. 
+              National lotteries and DeFi protocols use VRF to ensure fair winner selection.
               Every participant can verify the drawing was conducted fairly.
             </Typography>
             <Chip label="PoolTogether" size="small" sx={{ mr: 1 }} />
@@ -432,7 +432,7 @@ function VRFAndBlocklockArticle() {
               Consensus Mechanisms
             </Typography>
             <Typography variant="body2" paragraph>
-              Proof-of-Stake blockchains use VRF for leader election, ensuring no validator 
+              Proof-of-Stake blockchains use VRF for leader election, ensuring no validator
               can predict when they'll be chosen to propose blocks.
             </Typography>
             <Chip label="Cardano" size="small" sx={{ mr: 1 }} />
@@ -449,8 +449,8 @@ function VRFAndBlocklockArticle() {
       </Typography>
 
       <Typography variant="body1" paragraph sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}>
-        Blocklock encryption allows you to encrypt data that can only be decrypted after a specific 
-        point in time, determined by blockchain block height. This creates trustless time-delayed 
+        Blocklock encryption allows you to encrypt data that can only be decrypted after a specific
+        point in time, determined by blockchain block height. This creates trustless time-delayed
         revelations without requiring any trusted third parties.
       </Typography>
 
@@ -481,7 +481,7 @@ function VRFAndBlocklockArticle() {
               Auction Systems
             </Typography>
             <Typography variant="body2" paragraph>
-              Sealed-bid auctions where bids are revealed simultaneously after bidding ends, 
+              Sealed-bid auctions where bids are revealed simultaneously after bidding ends,
               preventing bid sniping and ensuring fair price discovery.
             </Typography>
           </CardContent>
@@ -494,7 +494,7 @@ function VRFAndBlocklockArticle() {
               Voting Systems
             </Typography>
             <Typography variant="body2" paragraph>
-              Votes can be encrypted during voting period and automatically revealed after 
+              Votes can be encrypted during voting period and automatically revealed after
               voting closes, ensuring privacy during voting and transparency afterward.
             </Typography>
           </CardContent>
@@ -507,7 +507,7 @@ function VRFAndBlocklockArticle() {
               Digital Will & Testament
             </Typography>
             <Typography variant="body2" paragraph>
-              Important information can be time-locked to be revealed only after specific 
+              Important information can be time-locked to be revealed only after specific
               conditions are met, enabling trustless inheritance mechanisms.
             </Typography>
           </CardContent>
@@ -521,7 +521,7 @@ function VRFAndBlocklockArticle() {
             Key Insight
           </Typography>
           <Typography variant="body1" sx={{ color: 'white' }}>
-            VRF and Blocklock solve fundamental problems of trust in randomness and time, 
+            VRF and Blocklock solve fundamental problems of trust in randomness and time,
             enabling new classes of applications that were impossible with traditional cryptography.
           </Typography>
         </CardContent>
@@ -564,9 +564,9 @@ function DCipherNetworkArticle() {
       </Typography>
 
       <Typography variant="body1" paragraph sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}>
-        dCipher networks represent the next evolution in secure communication infrastructure. 
-        Unlike traditional networks that rely on centralized points of control, dCipher creates 
-        resilient, distributed networks that can withstand sophisticated attacks while maintaining 
+        dCipher networks represent the next evolution in secure communication infrastructure.
+        Unlike traditional networks that rely on centralized points of control, dCipher creates
+        resilient, distributed networks that can withstand sophisticated attacks while maintaining
         privacy and performance.
       </Typography>
 
@@ -597,7 +597,7 @@ function DCipherNetworkArticle() {
               Mesh Topology
             </Typography>
             <Typography variant="body2" paragraph>
-              Each node connects to multiple others, creating redundant paths for message routing. 
+              Each node connects to multiple others, creating redundant paths for message routing.
               If any path is compromised, traffic automatically reroutes through healthy connections.
             </Typography>
           </CardContent>
@@ -610,7 +610,7 @@ function DCipherNetworkArticle() {
               Onion Routing
             </Typography>
             <Typography variant="body2" paragraph>
-              Messages are encrypted in multiple layers, with each node only knowing the previous 
+              Messages are encrypted in multiple layers, with each node only knowing the previous
               and next hop. This prevents any single node from seeing the full communication path.
             </Typography>
           </CardContent>
@@ -623,7 +623,7 @@ function DCipherNetworkArticle() {
               Adaptive Protocols
             </Typography>
             <Typography variant="body2" paragraph>
-              Network protocols automatically adapt to changing conditions, optimizing for 
+              Network protocols automatically adapt to changing conditions, optimizing for
               latency, bandwidth, and security based on real-time network state.
             </Typography>
           </CardContent>
@@ -642,19 +642,19 @@ function DCipherNetworkArticle() {
           </Typography>
           <Box sx={{ color: 'white' }}>
             <Typography variant="body2" paragraph>
-              <strong>DDoS Attacks:</strong> Distributed architecture makes it impossible to overwhelm 
+              <strong>DDoS Attacks:</strong> Distributed architecture makes it impossible to overwhelm
               the entire network by targeting individual nodes.
             </Typography>
             <Typography variant="body2" paragraph>
-              <strong>Network Partitioning:</strong> Multiple redundant paths ensure communication 
+              <strong>Network Partitioning:</strong> Multiple redundant paths ensure communication
               continues even if parts of the network are isolated.
             </Typography>
             <Typography variant="body2" paragraph>
-              <strong>Traffic Analysis:</strong> Onion routing and traffic padding make it extremely 
+              <strong>Traffic Analysis:</strong> Onion routing and traffic padding make it extremely
               difficult to determine who is communicating with whom.
             </Typography>
             <Typography variant="body2">
-              <strong>State-Level Censorship:</strong> Decentralized nature makes it practically 
+              <strong>State-Level Censorship:</strong> Decentralized nature makes it practically
               impossible for any authority to shut down the entire network.
             </Typography>
           </Box>
@@ -673,7 +673,7 @@ function DCipherNetworkArticle() {
               Secure Messaging
             </Typography>
             <Typography variant="body2" paragraph>
-              Applications like Signal and Element are exploring dCipher-based architectures 
+              Applications like Signal and Element are exploring dCipher-based architectures
               for truly censorship-resistant communication that governments cannot block.
             </Typography>
             <Chip label="Signal Protocol" size="small" sx={{ mr: 1 }} />
@@ -689,7 +689,7 @@ function DCipherNetworkArticle() {
               Internet Freedom
             </Typography>
             <Typography variant="body2" paragraph>
-              In regions with internet censorship, dCipher networks provide uncensorable 
+              In regions with internet censorship, dCipher networks provide uncensorable
               access to information and communication channels.
             </Typography>
             <Chip label="Tor Network" size="small" sx={{ mr: 1 }} />
@@ -705,7 +705,7 @@ function DCipherNetworkArticle() {
               Enterprise Security
             </Typography>
             <Typography variant="body2" paragraph>
-              Corporations use dCipher principles for internal communications that must 
+              Corporations use dCipher principles for internal communications that must
               remain secure even if parts of their infrastructure are compromised.
             </Typography>
             <Chip label="Zero Trust" size="small" sx={{ mr: 1 }} />
@@ -720,9 +720,9 @@ function DCipherNetworkArticle() {
       </Typography>
 
       <Typography variant="body1" paragraph sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}>
-        As digital communication becomes more critical to society, the resilience and privacy 
-        guarantees provided by dCipher networks become essential infrastructure. These systems 
-        represent a fundamental shift from hoping networks won't be attacked to mathematically 
+        As digital communication becomes more critical to society, the resilience and privacy
+        guarantees provided by dCipher networks become essential infrastructure. These systems
+        represent a fundamental shift from hoping networks won't be attacked to mathematically
         guaranteeing they can survive attacks.
       </Typography>
 
@@ -733,12 +733,49 @@ function DCipherNetworkArticle() {
             Vision for Tomorrow
           </Typography>
           <Typography variant="body1" sx={{ color: 'white' }}>
-            dCipher networks promise a future where communication infrastructure is as robust 
-            and uncensorable as the internet itself was meant to be—truly decentralized, 
+            dCipher networks promise a future where communication infrastructure is as robust
+            and uncensorable as the internet itself was meant to be—truly decentralized,
             private, and resilient.
           </Typography>
         </CardContent>
       </Card>
+
+      {/* Footer */}
+      <Box sx={{
+        mt: 8,
+        pt: 4,
+        borderTop: '1px solid',
+        borderColor: 'divider',
+        textAlign: 'center'
+      }}>
+        <Typography variant="body2" color="text.secondary" paragraph>
+          This educational content is part of the Threshold Cryptography Arena - an interactive learning platform
+          for advanced cryptographic concepts.
+        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
+          <Chip
+            icon={<Security />}
+            label="Cryptography"
+            variant="outlined"
+            size="small"
+          />
+          <Chip
+            icon={<VerifiedUser />}
+            label="Security"
+            variant="outlined"
+            size="small"
+          />
+          <Chip
+            icon={<SportsEsports />}
+            label="Interactive Learning"
+            variant="outlined"
+            size="small"
+          />
+        </Box>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
+          © 2024 Threshold Cryptography Arena. All cryptographic concepts explained are for educational purposes.
+        </Typography>
+      </Box>
     </Box>
   );
 }

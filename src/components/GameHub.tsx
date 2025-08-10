@@ -60,7 +60,11 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button
               startIcon={<MenuBook />}
-              onClick={onGoToBlog}
+              // onClick={onGoToBlog}
+              onClick={(e) => {
+                e.preventDefault();
+                window.open('https://thresholdcryptoplayground.vercel.app', '_blank');
+              }}
               variant="outlined"
               size="small"
             >
@@ -83,16 +87,16 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
         <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
           Cryptographic Challenges
         </Typography>
-        
-        <Box sx={{ 
-          display: 'flex', 
+
+        <Box sx={{
+          display: 'flex',
           flexDirection: 'column',
           gap: 3
         }}>
           {missions.map((mission) => (
-            <Card 
+            <Card
               key={mission.id}
-              sx={{ 
+              sx={{
                 border: mission.isCompleted ? '2px solid #4caf50' : '1px solid',
                 borderColor: mission.isCompleted ? '#4caf50' : 'divider',
                 '&:hover': {
@@ -103,53 +107,53 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
               }}
             >
               <CardContent>
-                <Box sx={{ 
-                  display: 'flex', 
+                <Box sx={{
+                  display: 'flex',
                   flexDirection: { xs: 'column', md: 'row' },
                   alignItems: { xs: 'flex-start', md: 'center' },
                   gap: 3
                 }}>
                   {/* Mission Info */}
                   <Box sx={{ flex: 1 }}>
-                    <Box sx={{ mb: 2, display: 'flex', alignItems: "center", gap: 1}}>
+                    <Box sx={{ mb: 2, display: 'flex', alignItems: "center", gap: 1 }}>
                       {/* <Box sx={{  color: 'primary.main' }}> */}
-                        {getMissionIcon(mission.cryptoTech)}
+                      {getMissionIcon(mission.cryptoTech)}
                       {/* </Box> */}
                       {/* <Typography variant="h6" component="h2"> */}
-                        {mission.title.replace(/[🏦🎰⏰🌐🎭]/g, '').trim()}
+                      {mission.title.replace(/[🏦🎰⏰🌐🎭]/g, '').trim()}
                       {/* </Typography> */}
                       {mission.isCompleted && (
                         <Star sx={{ ml: 2, color: 'warning.main' }} />
                       )}
                     </Box>
-                    
+
                     <Typography variant="body2" sx={{ mb: 2 }}>
                       {mission.description.replace(/[🚨☕🎲📅🌍😉😅🎯]/g, '')}
                     </Typography>
-                    
+
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      <Chip 
-                        label={mission.difficulty} 
-                        size="small" 
+                      <Chip
+                        label={mission.difficulty}
+                        size="small"
                         color={getDifficultyColor(mission.difficulty) as any}
                       />
-                      <Chip 
-                        label={mission.cryptoTech.toUpperCase()} 
-                        size="small" 
+                      <Chip
+                        label={mission.cryptoTech.toUpperCase()}
+                        size="small"
                         variant="outlined"
                       />
                     </Box>
-                    
+
                     {mission.isCompleted && (
                       <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 'bold' }}>
                         ✓ Completed this session
                       </Typography>
                     )}
                   </Box>
-                  
+
                   {/* Action Button */}
-                  <Box sx={{ 
-                    display: 'flex', 
+                  <Box sx={{
+                    display: 'flex',
                     alignItems: 'center',
                     minWidth: { xs: '100%', md: 200 },
                     justifyContent: { xs: 'stretch', md: 'flex-end' }
@@ -158,7 +162,7 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
                       variant={mission.isCompleted ? "outlined" : "contained"}
                       startIcon={<PlayArrow />}
                       onClick={() => onStartMission(mission.id)}
-                      sx={{ 
+                      sx={{
                         minWidth: { xs: '100%', md: 160 },
                         py: 1.5
                       }}

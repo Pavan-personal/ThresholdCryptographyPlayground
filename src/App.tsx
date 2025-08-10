@@ -1,6 +1,7 @@
 import React from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useGameEngine } from './hooks/useGameEngine';
 import { ToastProvider } from './components/ToastNotification';
 import { GameHub } from './components/GameHub';
@@ -37,8 +38,6 @@ function App() {
             onReturnToMission={() => actions.startMission(gameState.activeMission!.id)}
           />
         );
-      case 'blog':
-        return <BlogSection onReturnToHub={actions.returnToHub} />;
       case 'mission-complete':
         return <MissionComplete mission={gameState.activeMission!} onReturnToHub={actions.returnToHub} />;
       default:
@@ -50,9 +49,20 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ToastProvider>
-        <div className="App">
-          {renderCurrentScene()}
-        </div>
+        <Router>
+          <div className="App">
+            <Routes>
+              {/* Blog route - accessible directly via URL */}
+              <Route path="/blog" element={<BlogSection onReturnToHub={() => actions.returnToHub()} />} />
+              
+              {/* Root route - redirects to main game */}
+              <Route path="/" element={renderCurrentScene()} />
+              
+              {/* Catch all other routes */}
+              <Route path="*" element={renderCurrentScene()} />
+            </Routes>
+          </div>
+        </Router>
       </ToastProvider>
     </ThemeProvider>
   );
