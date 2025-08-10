@@ -63,7 +63,7 @@ export function GameHub({ gameState, onStartMission, onGoToBlog }: GameHubProps)
               // onClick={onGoToBlog}
               onClick={(e) => {
                 e.preventDefault();
-                window.open('https://thresholdcryptoplayground.vercel.app', '_blank');
+                window.open('https://thresholdcryptoplayground.vercel.app/blog', '_blank');
               }}
               variant="outlined"
               size="small"
