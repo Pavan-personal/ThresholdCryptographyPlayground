@@ -112,11 +112,11 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
     // Generate a more realistic VRF-like proof using cryptographic hashing
     const input = `card_draw_${seed}_${Date.now()}`;
     const hash = await generateCryptographicHash(input);
-    
+
     // Create a deterministic but cryptographically secure "proof"
     const proofInput = `${hash}_proof_${seed}`;
     const proof = await generateCryptographicHash(proofInput);
-    
+
     return JSON.stringify({
       hash: `0x${hash}`,
       proof: `0x${proof}`,
@@ -132,7 +132,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
     const bytesNeeded = Math.ceil(Math.log2(range) / 8);
     const maxNum = Math.pow(256, bytesNeeded);
     const maxValidNum = maxNum - (maxNum % range);
-    
+
     let randomValue: number;
     do {
       const randomBytes = new Uint8Array(bytesNeeded);
@@ -142,7 +142,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
         randomValue = (randomValue << 8) + randomBytes[i];
       }
     } while (randomValue >= maxValidNum);
-    
+
     return min + (randomValue % range);
   };
 
@@ -228,7 +228,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
       // Verify the VRF proof by re-hashing the input
       const proofData = JSON.parse(card.vrfProof);
       const expectedHash = await generateCryptographicHash(proofData.input);
-      
+
       if (proofData.hash === `0x${expectedHash}`) {
         toast.showSuccess(`VRF Proof Verified! Card ${card.value} of ${card.suit} was genuinely random.`);
       } else {
@@ -349,34 +349,49 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
           </Typography>
 
           <Box sx={{ display: 'flex', gap: 3, mb: 4, flexWrap: 'wrap' }}>
-            <Box sx={{ flex: 1, minWidth: 200 }}>
+            <Box sx={{ flex: 1, width: "fit-content" }}>
               <Card sx={{ height: '100%', p: 2 }}>
-                <CardContent>
+                <CardContent style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
                   <Security sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
                   <Typography variant="h6" gutterBottom>Unpredictable</Typography>
-                  <Typography variant="body2">
+                  <Typography variant="body2" sx={{ textAlign: 'center' }}>
                     No one can predict the next random value, not even the generator
                   </Typography>
                 </CardContent>
               </Card>
             </Box>
-            <Box sx={{ flex: 1, minWidth: 200 }}>
+            <Box sx={{ flex: 1, width: "fit-content" }}>
               <Card sx={{ height: '100%', p: 2 }}>
-                <CardContent>
+                <CardContent style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
                   <CheckCircle sx={{ fontSize: 40, color: 'success.main', mb: 2 }} />
                   <Typography variant="h6" gutterBottom>Verifiable</Typography>
-                  <Typography variant="body2">
+                  <Typography variant="body2" sx={{ textAlign: 'center' }}>
                     Anyone can verify that the random value was generated correctly
                   </Typography>
                 </CardContent>
               </Card>
             </Box>
-            <Box sx={{ flex: 1, minWidth: 200 }}>
+            <Box sx={{ flex: 1, width: "fit-content" }}>
               <Card sx={{ height: '100%', p: 2 }}>
-                <CardContent>
+                <CardContent style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
                   <TrendingUp sx={{ fontSize: 40, color: 'warning.main', mb: 2 }} />
                   <Typography variant="h6" gutterBottom>Unique</Typography>
-                  <Typography variant="body2">
+                  <Typography variant="body2" sx={{ textAlign: 'center' }}>
                     Each input produces exactly one valid random output
                   </Typography>
                 </CardContent>
@@ -500,48 +515,6 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
                 </Box>
               )}
 
-              {/* Educational Section about Cryptographic Randomness */}
-              <Paper sx={{ p: 3, mt: 3, bgcolor: 'info.light', border: '1px solid', borderColor: 'info.main' }}>
-                <Typography variant="h6" gutterBottom sx={{ color: 'info.dark', display: 'flex', alignItems: 'center' }}>
-                  <Security sx={{ mr: 1 }} />
-                  Cryptographic Randomness vs Pseudo-Random
-                </Typography>
-                <Box sx={{ display: 'grid', gap: 2 }}>
-                  <Box>
-                    <Typography variant="subtitle2" color="info.dark" fontWeight="bold">
-                      🔒 What We Use (Cryptographic):
-                    </Typography>
-                    <Typography variant="body2" color="info.dark">
-                      • <strong>Web Crypto API</strong> - Browser's built-in cryptographic functions
-                      • <strong>crypto.getRandomValues()</strong> - Hardware-based entropy
-                      • <strong>SHA-256 Hashing</strong> - Deterministic but cryptographically secure
-                      • <strong>Unpredictable</strong> - Cannot be reverse-engineered
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="subtitle2" color="info.dark" fontWeight="bold">
-                      ⚠️ What We Avoid (Pseudo-Random):
-                    </Typography>
-                    <Typography variant="body2" color="info.dark">
-                      • <strong>Math.random()</strong> - Predictable after enough samples
-                      • <strong>Linear Congruential Generators</strong> - Mathematical patterns
-                      • <strong>Time-based seeds</strong> - Can be guessed
-                      • <strong>Deterministic algorithms</strong> - Same input = same output
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="subtitle2" color="info.dark" fontWeight="bold">
-                      🎯 Why This Matters:
-                    </Typography>
-                    <Typography variant="body2" color="info.dark">
-                      In real cryptography, predictable randomness can break security. Our VRF implementation 
-                      uses hardware entropy and cryptographic hashing to ensure true randomness that cannot 
-                      be predicted or manipulated.
-                    </Typography>
-                  </Box>
-                </Box>
-              </Paper>
-
               {/* Action Buttons */}
               {spinnerResult && (
                 <Box sx={{
@@ -572,6 +545,69 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
                   </Button>
                 </Box>
               )}
+
+              {/* Educational Section about Cryptographic Randomness */}
+              <Paper sx={{ p: 3, mt: 3, bgcolor: '', border: '1px solid', borderColor: 'white' }}>
+                <Typography variant="h6" gutterBottom sx={{ color: 'white', display: 'flex', alignItems: 'center' }}>
+                  <Security sx={{ mr: 1 }} />
+                  Cryptographic Randomness vs Pseudo-Random
+                </Typography>
+                <Box sx={{ display: 'grid', gap: 2 }}>
+                  <Box>
+                    <Typography sx={{ textAlign: "left" }} variant="subtitle2" color="white" fontWeight="bold">
+                      What We Use (Cryptographic):
+                    </Typography>
+                    <Typography variant="body2" color="white" style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                      gap: 2
+                    }}
+                      sx={{
+                        ml: 1
+                      }}
+                    >
+                      <li><strong>Web Crypto API</strong> - Browser's built-in cryptographic functions</li>
+                      <li><strong>crypto.getRandomValues()</strong> - Hardware-based entropy</li>
+                      <li><strong>SHA-256 Hashing</strong> - Deterministic but cryptographically secure</li>
+                      <li><strong>Unpredictable</strong> - Cannot be reverse-engineered</li>
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography sx={{ textAlign: "left" }} variant="subtitle2" color="white" fontWeight="bold">
+                      What We Avoid (Pseudo-Random):
+                    </Typography>
+                    <Typography variant="body2" color="white" style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                      gap: 2
+                    }}
+                      sx={{
+                        ml: 1
+                      }}
+                    >
+                      <li><strong>Math.random()</strong> - Predictable after enough samples</li>
+                      <li><strong>Linear Congruential Generators</strong> - Mathematical patterns</li>
+                      <li><strong>Time-based seeds</strong> - Can be guessed</li>
+                      <li><strong>Deterministic algorithms</strong> - Same input = same output</li>
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography sx={{ textAlign: "left" }} variant="subtitle2" color="white" fontWeight="bold">
+                      Why This Matters:
+                    </Typography>
+                    <Typography variant="body2" color="white" sx={{ textAlign: "left" }}>
+                      In real cryptography, predictable randomness can break security. Our VRF implementation
+                      uses hardware entropy and cryptographic hashing to ensure true randomness that cannot
+                      be predicted or manipulated.
+                    </Typography>
+                  </Box>
+                </Box>
+              </Paper>
+
             </Box>
           </Paper>
         </Fade>
@@ -815,7 +851,7 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
               disabled={isDrawing || deck.length === 0}
               startIcon={<Shuffle />}
               size="large"
-              // sx={{ mt: 1 }}
+            // sx={{ mt: 1 }}
             >
               {isDrawing ? 'Drawing...' : 'Draw Random Card'}
             </Button>
@@ -840,43 +876,67 @@ export function VRFChallenge({ challenge, onSubmit }: VRFChallengeProps) {
 
           {/* Educational Section about VRF and Card Security */}
           {drawnCards.length > 0 && (
-            <Paper sx={{ p: 3, mt: 4, bgcolor: 'warning.light', border: '1px solid', borderColor: 'warning.main' }}>
-              <Typography variant="h6" gutterBottom sx={{ color: 'warning.dark', display: 'flex', alignItems: 'center' }}>
+            <Paper sx={{ p: 3, mt: 4, bgcolor: '', border: '1px solid', borderColor: 'white' }}>
+              <Typography variant="h6" gutterBottom sx={{ color: 'white', display: 'flex', alignItems: 'center' }}>
                 <Visibility sx={{ mr: 1 }} />
                 How VRF Ensures Fair Card Drawing
               </Typography>
               <Box sx={{ display: 'grid', gap: 2 }}>
                 <Box>
-                  <Typography variant="subtitle2" color="warning.dark" fontWeight="bold">
-                    🎯 VRF (Verifiable Random Function) Process:
+                  <Typography variant="subtitle2" color="white" fontWeight="bold">
+                    VRF (Verifiable Random Function) Process:
                   </Typography>
-                  <Typography variant="body2" color="warning.dark">
-                    1. <strong>Input:</strong> Card ID + Timestamp + Cryptographic seed
-                    2. <strong>Hash:</strong> SHA-256 creates deterministic but unpredictable output
-                    3. <strong>Proof:</strong> Cryptographic proof that randomness was fair
-                    4. <strong>Verification:</strong> Anyone can verify the proof is valid
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="subtitle2" color="warning.dark" fontWeight="bold">
-                    🔐 Security Benefits:
-                  </Typography>
-                  <Typography variant="body2" color="warning.dark">
-                    • <strong>Unpredictable:</strong> Cannot guess next card even with all previous draws
-                    • <strong>Verifiable:</strong> Proof shows randomness wasn't manipulated
-                    • <strong>Fair:</strong> Each card has equal probability of being drawn
-                    • <strong>Transparent:</strong> All randomness can be audited
+                  <Typography variant="body2" color="white" style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    gap: 2
+                  }} sx={{
+                    ml: 1
+                  }}>
+                    <li><strong>Input:</strong> Card ID + Timestamp + Cryptographic seed</li>
+                    <li><strong>Hash:</strong> SHA-256 creates deterministic but unpredictable output</li>
+                    <li><strong>Proof:</strong> Cryptographic proof that randomness was fair</li>
+                    <li><strong>Verification:</strong> Anyone can verify the proof is valid</li>
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="subtitle2" color="warning.dark" fontWeight="bold">
-                    💡 Real-World Applications:
+                  <Typography variant="subtitle2" color="white" fontWeight="bold">
+                    Security Benefits:
                   </Typography>
-                  <Typography variant="body2" color="warning.dark">
-                    • <strong>Blockchain:</strong> Fair random number generation for smart contracts
-                    • <strong>Gaming:</strong> Provably fair online casinos and games
-                    • <strong>Lotteries:</strong> Transparent random selection processes
-                    • <strong>Security:</strong> Unpredictable cryptographic keys and tokens
+                  <Typography variant="body2" color="white" style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    gap: 2
+                  }} sx={{
+                    ml: 1
+                  }}>
+                    <li><strong>Unpredictable:</strong> Cannot guess next card even with all previous draws</li>
+                    <li><strong>Verifiable:</strong> Proof shows randomness wasn't manipulated</li>
+                    <li><strong>Fair:</strong> Each card has equal probability of being drawn</li>
+                    <li><strong>Transparent:</strong> All randomness can be audited</li>
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="subtitle2" color="white" fontWeight="bold">
+                    Real-World Applications:
+                  </Typography>
+                  <Typography variant="body2" color="white" style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    gap: 2,
+                  }} sx={{
+                    ml: 1
+                  }}>
+                    <li><strong>Blockchain:</strong> Fair random number generation for smart contracts</li>
+                    <li><strong>Gaming:</strong> Provably fair online casinos and games</li>
+                    <li><strong>Lotteries:</strong> Transparent random selection processes</li>
+                    <li><strong>Security:</strong> Unpredictable cryptographic keys and tokens</li>
                   </Typography>
                 </Box>
               </Box>
